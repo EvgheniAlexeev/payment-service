@@ -1,0 +1,77 @@
+<TechnologyStack VERSION="0.2.0">
+  <Runtime>.NET 9.0</Runtime>
+  <Language>C# 13</Language>
+  <Framework>ASP.NET Core 9.0</Framework>
+
+  <Dependencies>
+    <dep name="WolverineFx" version="3.x" purpose="CQRS command/event bus, saga orchestration, message handler pipeline (Worker only)" />
+    <dep name="Dapr.Client" version="1.15.x" purpose="Sidecar-based pub/sub (Writer→MQ), state management (Worker saga state)" />
+    <dep name="Dapr.AspNetCore" version="1.15.x" purpose="ASP.NET Core integration for Dapr pub/sub and service invocation" />
+    <dep name="FluentValidation" version="12.x" purpose="Payment DTO validation (Reader and Writer), command validation (Wolverine pipeline)" />
+    <dep name="MongoDB.Driver" version="3.x" purpose="Payment document storage (Reader queries), saga state persistence (Worker), idempotency records" />
+    <dep name="Serilog" version="4.x" purpose="Structured logging with enrichment and PII redaction across all tiers" />
+    <dep name="Serilog.Sinks.Console" version="6.x" purpose="Console sink for structured development logs" />
+    <dep name="Serilog.Enrichers.CorrelationId" version="3.x" purpose="Correlation ID propagation: Reader → Writer → MQ → Worker" />
+    <dep name="Serilog.Sinks.OpenTelemetry" version="4.x" purpose="Export structured logs to OTLP-compatible backends for observability" />
+  </Dependencies>
+
+  <VersionConstraints>
+    <constraint lib="WolverineFx" min="3.0.0" max="3.x" reason="Wolverine 3.x is current stable for .NET 9; saga APIs stable" />
+    <constraint lib="Dapr.Client" min="1.15.0" max="1.15.x" reason="Dapr 1.15 LTS aligns with .NET 9 runtime support" />
+    <constraint lib="MongoDB.Driver" min="3.0.0" max="3.x" reason="MongoDB.Driver 3.x supports LINQ3 and transactions on .NET 9" />
+  </VersionConstraints>
+
+  <Tooling>
+    <tool name="build" value="dotnet build" version="9.0" />
+    <tool name="test-runner" value="dotnet test" version="9.0" />
+    <tool name="linter" value="dotnet format" version="9.0" />
+    <tool name="formatter" value="dotnet format" version="9.0" />
+    <tool name="container-build" value="docker build" version="latest" />
+    <tool name="orchestration" value="Dapr CLI + Kubernetes manifests" version="1.15" />
+  </Tooling>
+
+  <PreferredAgentStack>
+    <preferred-read-api>ASP.NET Core controllers for direct MongoDB queries (stateless, scalable)</preferred-read-api>
+    <preferred-write-gateway>ASP.NET Core controllers that route commands to Dapr pub/sub (async, fireand-forget to MQ)</preferred-write-gateway>
+    <preferred-message-bus>WolverineFx (command/event via Dapr pub/sub binding, Worker side only)</preferred-message-bus>
+    <preferred-validation>FluentValidation (pipeline behavior for Wolverine messages, DTO validation for Reader/Writer)</preferred-validation>
+    <preferred-persistence>MongoDB (payment documents, saga state, idempotency ledger)</preferred-persistence>
+    <preferred-test-library>xUnit.net + FakeItEasy</preferred-test-library>
+    <preferred-observability-library>Serilog (structured JSON, CorrelationId enricher, PII redaction)</preferred-observability-library>
+    <discouraged-surface reason="Avoids lock-in to a single MQ SDK; use Dapr pub/sub abstraction.">Direct RabbitMQ/Kafka client SDK in Reader/Writer code</discouraged-surface>
+  </PreferredAgentStack>
+
+  <Testing>
+    <module-level>
+      <command>dotnet test tests/PaymentService.<Module>.UnitTests/</command>
+      <focus>Fast deterministic unit and contract checks; fakes for all external boundaries</focus>
+    </module-level>
+    <wave-level>
+      <command>dotnet test tests/PaymentService.IntegrationTests/ --filter "Category=Wave"</command>
+      <focus>Bottom-up: MongoDB → Reader (read queries) + Writer (command routing) → Worker (saga processing)</focus>
+    </wave-level>
+    <phase-level>
+      <command>dotnet test</command>
+      <focus>Full regression: all unit + wave integration + saga compensation + idempotency replay + read-write consistency</focus>
+    </phase-level>
+    <mocking-policy>Prefer FakeItEasy fakes for Dapr client; use Testcontainers.MongoDB for integration tests; Wolverine in-memory pub/sub for unit tests.</mocking-policy>
+  </Testing>
+
+  <Observability>
+    <logger>Serilog (structured JSON)</logger>
+    <log-format>[ModuleName][functionName][BLOCK_NAME] message {correlationId} {paymentId} {path}</log-format>
+    <required-fields>correlationId, paymentId, path (read|write), sagaId (write path only)</required-fields>
+    <redaction>Never log account numbers, full amounts (log ranges/buckets only), SWIFT auth codes, or PII. Redact at Serilog enricher level with a custom Destructure policy.</redaction>
+  </Observability>
+
+  <AutonomyPolicy>
+    <default-execution-profile>balanced</default-execution-profile>
+    <max-fix-attempts-per-step>2</max-fix-attempts-per-step>
+    <replan-trigger>Missing dependency surface, contradictory contract, or unclear Dapr/Wolverine version-specific API.</replan-trigger>
+    <checkpoint-requirement>Every completed step must emit assumptions, commands, evidence, and next action.</checkpoint-requirement>
+  </AutonomyPolicy>
+
+  <DeliveryShape>
+    <shape>Kubernetes-native: Reader Deployment (3+ read-only replicas, stateless), Writer Deployment (3+ command gateway replicas), Worker Deployment (3-N replicas per MQ partition). Each pod has Dapr sidecar. MongoDB StatefulSet with replica-set. MQ broker (Kafka or RabbitMQ) managed by Dapr. GitOps-driven deployment via centralized repo.</shape>
+  </DeliveryShape>
+</TechnologyStack>

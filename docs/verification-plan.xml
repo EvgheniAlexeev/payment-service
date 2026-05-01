@@ -1,0 +1,159 @@
+<VerificationPlan VERSION="0.2.0">
+  <GlobalPolicy>
+    <log-format>[ModuleName][functionName][BLOCK_NAME] message {correlationId} {paymentId} {path}</log-format>
+    <deterministic-first>true</deterministic-first>
+    <module-level-focus>Fast unit checks: DTO validation, MongoDB query logic, saga state transitions</module-level-focus>
+    <wave-level-focus>Bottom-up: MongoDB → Reader queries → Writer command publish → Worker saga processing</wave-level-focus>
+    <phase-level-focus>Full regression: all unit + integration + compensation + idempotency replay + read-write consistency</phase-level-focus>
+    <autonomy-gate>Each shared module needs commands, scenarios, evidence, and wave/phase follow-up</autonomy-gate>
+    <redaction>Never log account numbers, full amounts, SWIFT codes, or PII</redaction>
+  </GlobalPolicy>
+
+  <CriticalFlows>
+    <VF-001 NAME="CommandPathHappy" USE_CASES="UC-001" DATA_FLOW="DF-COMMAND-PATH" PRIORITY="critical">
+      <scenario>Payment command flows: Writer → MQ → Worker saga → settled</scenario>
+      <expected-outcome>PaymentSettled event, saga state=Settled, payment document persisted</expected-outcome>
+      <required-signals>
+        <log-marker>[Writer][PostPayment][BLOCK_PUBLISH_TO_MQ]</log-marker>
+        <log-marker>[Worker][ProcessPaymentHandler][BLOCK_SAGA_START]</log-marker>
+        <trace-sequence>BLOCK_PUBLISH_TO_MQ → BLOCK_SAGA_START → BLOCK_PERSIST_PAYMENT</trace-sequence>
+      </required-signals>
+    </VF-001>
+
+    <VF-002 NAME="QueryPathFast" USE_CASES="UC-002" DATA_FLOW="DF-QUERY-PATH" PRIORITY="critical">
+      <scenario>Payment query via Reader API from MongoDB cache</scenario>
+      <expected-outcome>Response latency ≤100ms p95, correct payment document returned</expected-outcome>
+      <required-signals>
+        <log-marker>[Reader][GetPaymentByCorrelationId][BLOCK_QUERY_MONGODB]</log-marker>
+      </required-signals>
+    </VF-002>
+
+    <VF-003 NAME="SagaCompensation" USE_CASES="UC-005" DATA_FLOW="DF-SAGA-LIFECYCLE" PRIORITY="critical">
+      <scenario>Settlement fails, saga compensates</scenario>
+      <expected-outcome>Compensation runs, saga state=Failed, no double-settlement</expected-outcome>
+      <required-signals>
+        <log-marker>[Worker][PaySaga][BLOCK_COMPENSATE]</log-marker>
+      </required-signals>
+    </VF-003>
+  </CriticalFlows>
+
+  <ModuleVerification>
+    <V-M-READER MODULE="M-READER" PRIORITY="high">
+      <test-files>
+        <file>tests/PaymentService.Reader.UnitTests/</file>
+      </test-files>
+      <module-checks>
+        <check-1>dotnet test tests/PaymentService.Reader.UnitTests/</check-1>
+        <check-2>Reader GET endpoints respond with payment documents or 404</check-2>
+      </module-checks>
+      <scenarios>
+        <scenario-1 kind="success">Query by correlationId returns payment</scenario-1>
+        <scenario-2 kind="failure">Invalid correlationId returns 404</scenario-2>
+      </scenarios>
+      <required-log-markers>
+        <marker-1>[Reader][GetPaymentByCorrelationId][BLOCK_QUERY_MONGODB]</marker-1>
+      </required-log-markers>
+      <wave-follow-up>Integration: Reader → MongoDB queries correct documents</wave-follow-up>
+      <phase-follow-up>Load test: 1000 queries/s, p99 ≤100ms</phase-follow-up>
+    </V-M-READER>
+
+    <V-M-WRITER MODULE="M-WRITER" PRIORITY="high">
+      <test-files>
+        <file>tests/PaymentService.Writer.UnitTests/</file>
+      </test-files>
+      <module-checks>
+        <check-1>dotnet test tests/PaymentService.Writer.UnitTests/</check-1>
+        <check-2>Writer POST endpoint validates, publishes to MQ, returns 202</check-2>
+      </module-checks>
+      <scenarios>
+        <scenario-1 kind="success">Valid payment command → 202 Accepted + correlationId → message published</scenario-1>
+        <scenario-2 kind="failure">Invalid payload → 400 with validation errors</scenario-2>
+      </scenarios>
+      <required-log-markers>
+        <marker-1>[Writer][PostPayment][BLOCK_PUBLISH_TO_MQ]</marker-1>
+      </required-log-markers>
+      <wave-follow-up>Integration: Writer → Dapr pub/sub (in-memory stub) → Worker receives command</wave-follow-up>
+      <phase-follow-up>Load test: 1000 POST/s, verify partition key routing</phase-follow-up>
+    </V-M-WRITER>
+
+    <V-M-WORKER MODULE="M-WORKER" PRIORITY="critical">
+      <test-files>
+        <file>tests/PaymentService.Worker.UnitTests/</file>
+      </test-files>
+      <module-checks>
+        <check-1>dotnet test tests/PaymentService.Worker.UnitTests/</check-1>
+        <check-2>PaySaga happy path: all steps complete, saga state=Settled</check-2>
+        <check-3>PaySaga compensation: failure triggers revert</check-3>
+        <check-4>Idempotency: replay skips completed steps</check-4>
+      </module-checks>
+      <scenarios>
+        <scenario-1 kind="success">Valid command → saga completes, PaymentSettled event</scenario-1>
+        <scenario-2 kind="failure">Validation fails → BLOCK_COMPENSATE, no settlement</scenario-2>
+        <scenario-3 kind="replay">Replayed after partial progress → skips completed, finishes pending</scenario-3>
+      </scenarios>
+      <required-log-markers>
+        <marker-1>[Worker][ProcessPaymentHandler][BLOCK_SAGA_START]</marker-1>
+        <marker-2>[Worker][PaySaga][BLOCK_IDEMPOTENCY_CHECK]</marker-2>
+        <marker-3>[Worker][PaySaga][BLOCK_COMPENSATE]</marker-3>
+      </required-log-markers>
+      <wave-follow-up>Integration: real MongoDB + Testcontainers, full saga flow</wave-follow-up>
+      <phase-follow-up>Chaos test: kill Worker pod, verify saga resumes</phase-follow-up>
+    </V-M-WORKER>
+
+    <V-M-MONGO MODULE="M-MONGO" PRIORITY="high">
+      <test-files>
+        <file>tests/PaymentService.Persistence.UnitTests/</file>
+      </test-files>
+      <module-checks>
+        <check-1>dotnet test tests/PaymentService.Persistence.UnitTests/</check-1>
+        <check-2>Transactional writes: payment + saga state atomically</check-2>
+      </module-checks>
+      <scenarios>
+        <scenario-1 kind="success">Payment persisted, idempotency key recorded</scenario-1>
+        <scenario-2 kind="failure">Duplicate idempotency key → exception caught</scenario-2>
+      </scenarios>
+      <wave-follow-up>Testcontainers.MongoDB replica-set tests</wave-follow-up>
+      <phase-follow-up>Transaction rollback under MongoDB failover</phase-follow-up>
+    </V-M-MONGO>
+  </ModuleVerification>
+
+  <PhaseGates>
+    <Gate-Phase-1 PHASE="Phase-1">
+      <solution>PaymentServices</solution>
+      <goal>Contracts, MongoDB layer, unit tests pass</goal>
+      <commands>
+        <command-1>dotnet test tests/PaymentService.Shared.UnitTests/</command-1>
+        <command-2>dotnet test tests/PaymentService.Persistence.UnitTests/</command-2>
+      </commands>
+    </Gate-Phase-1>
+
+    <Gate-Phase-2 PHASE="Phase-2">
+      <solution>PaymentServices</solution>
+      <goal>Reader and Writer working end-to-end to MQ</goal>
+      <commands>
+        <command-1>dotnet test tests/PaymentService.Api.ReaderService.UnitTests/</command-1>
+        <command-2>dotnet test tests/PaymentService.Api.WriterService.UnitTests/</command-2>
+        <command-3>dotnet test tests/PaymentService.IntegrationTests/ --filter "Category=Wave2"</command-3>
+      </commands>
+    </Gate-Phase-2>
+
+    <Gate-Phase-3 PHASE="Phase-3">
+      <solution>PaymentServices</solution>
+      <goal>Worker saga, DLQ failure handling, idempotency pass all tests</goal>
+      <commands>
+        <command-1>dotnet test tests/PaymentService.WorkerService.UnitTests/</command-1>
+        <command-2>dotnet test tests/PaymentService.IntegrationTests/ --filter "Category=Wave3"</command-2>
+        <command-3>dotnet test tests/PaymentService.IntegrationTests/ --filter "Category=DLQ"</command-3>
+      </commands>
+    </Gate-Phase-3>
+
+    <Gate-Phase-4 PHASE="Phase-4">
+      <solution>PaymentServices</solution>
+      <goal>K8s deployed, 1000 msg/s write path + 1000 queries/s read path, zero loss, DLQ processing</goal>
+      <commands>
+        <command-1>kubectl apply --dry-run=client -f deploy/k8s/</command-1>
+        <command-2>dotnet run --project tests/PaymentService.LoadTests/ -- --write-rate 1000 --read-rate 1000 --duration 300 --validate-dlq true</command-2>
+      </commands>
+    </Gate-Phase-4>
+  </PhaseGates>
+</VerificationPlan>

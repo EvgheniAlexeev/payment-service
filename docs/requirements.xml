@@ -1,0 +1,105 @@
+---
+stepsCompleted: []
+inputDocuments:
+  - technology.xml
+workflowType: 'requirements'
+---
+
+<RequirementsAnalysis VERSION="0.2.0">
+  <Project>
+    <name>PaymentService</name>
+    <solution-file>PaymentServices.sln</solution-file>
+    <annotation>High-throughput SWIFT-like payment processing microservice in MIF (Micro Integrator for Finances). Built on .NET 9 CQRS + Dapr + Wolverine Sagas. Reader API for query path, Writer API for command path, Worker processes sagas via MQ, all persisted to MongoDB. Deployed on Kubernetes with horizontal scaling.</annotation>
+    <keywords>mif, payment-processing, swift, cqrs, dapr, wolverine, mongodb, k8s, horizontal-scaling, saga, message-partitioning, serilog, xunit</keywords>
+  </Project>
+
+  <Actors>
+    <actor-SenderBank>External banking system initiating a payment instruction (SWIFT-like message).</actor-SenderBank>
+    <actor-ReceiverBank>External banking system receiving the final settlement notification.</actor-ReceiverBank>
+    <actor-Operator>Platform operations engineer monitoring throughput, latency, and error budgets.</actor-Operator>
+    <actor-System>Internal automated actors — Reader (read queries), Writer (command gateway), Worker (saga processor on MQ).</actor-System>
+  </Actors>
+
+  <UseCases>
+    <UC-001>
+      <Actor>SenderBank</Actor>
+      <Action>Sends a payment instruction via Writer API (command path)</Action>
+      <Goal>The payment is validated, routed to Worker via MQ, processed through a saga, and settled with ReceiverBank</Goal>
+      <Preconditions>Writer API is live; MQ is configured; Worker instances are subscribed to payment saga topic</Preconditions>
+      <AcceptanceCriteria>End-to-end latency ≤ 2s p99; zero message loss; saga completion emits settlement confirmation</AcceptanceCriteria>
+      <Priority>critical</Priority>
+      <RelatedFlows>DF-PAYMENT-LIFECYCLE</RelatedFlows>
+    </UC-001>
+
+    <UC-002>
+      <Actor>Operator</Actor>
+      <Action>Queries payment status via Reader API (query path)</Action>
+      <Goal>Retrieve the current saga state and all intermediate steps for a given payment from MongoDB</Goal>
+      <Preconditions>Correlation ID is known; MongoDB read replica is available</Preconditions>
+      <AcceptanceCriteria>Response includes full timeline: received → validated → processed → settled; query latency ≤ 100ms p95</AcceptanceCriteria>
+      <Priority>high</Priority>
+      <RelatedFlows>DF-PAYMENT-QUERY</RelatedFlows>
+    </UC-002>
+
+    <UC-003>
+      <Actor>System</Actor>
+      <Action>Reader ingests payment queries at high concurrency (thousands/sec) from the read-only query path</Action>
+      <Goal>Queries are served from MongoDB without blocking write-path processing</Goal>
+      <Preconditions>MongoDB read-only connection pool is configured; Reader API instances are scaled per load</Preconditions>
+      <AcceptanceCriteria>Read p99 latency ≤ 100ms; no impact on write-path (Writer→MQ→Worker)</AcceptanceCriteria>
+      <Priority>high</Priority>
+      <RelatedFlows>DF-PAYMENT-QUERY</RelatedFlows>
+    </UC-004>
+
+    <UC-004>
+      <Actor>System</Actor>
+      <Action>Writer API routes payment commands to Worker via MQ with partition key (correlationId)</Action>
+      <Goal>Messages are partitioned by MQ broker and routed to the correct Worker instance without cross-shard contention</Goal>
+      <Preconditions>Dapr pub/sub component configured with partition key; Worker instances scaled per partition count</Preconditions>
+      <AcceptanceCriteria>No single partition hot-spots under 1000 msg/s per partition; backpressure triggers scaling events</AcceptanceCriteria>
+      <Priority>critical</Priority>
+      <RelatedFlows>DF-COMMAND-PARTITION</RelatedFlows>
+    </UC-005>
+
+    <UC-005>
+      <Actor>System</Actor>
+      <Action>Worker saga handles payment lifecycle: validation → enrichment → settlement → notification</Action>
+      <Goal>Saga compensates on failure; idempotency ensures no double-settlement</Goal>
+      <Preconditions>Idempotency key derived from message; MongoDB supports transactional saga state updates</Preconditions>
+      <AcceptanceCriteria>Saga compensation runs within 5s of failure detection; no duplicate settlements observed</AcceptanceCriteria>
+      <Priority>critical</Priority>
+      <RelatedFlows>DF-SAGA-LIFECYCLE</RelatedFlows>
+    </UC-006>
+  </UseCases>
+
+  <NonGoals>
+    <item-1>No real-time FX conversion in v1 — settlement is single-currency only.</item-1>
+    <item-2>No web UI or admin dashboard — operator access is CLI/API only.</item-2>
+    <item-3>No direct SWIFT network integration in v1 — accepts SWIFT-like structured messages via HTTP.</item-3>
+    <item-4>No multi-tenancy beyond the single service boundary; identity/auth delegated to IdentityService.</item-4>
+  </NonGoals>
+
+  <Constraints>
+    <constraint-1>Must achieve ≥ 1000 payment messages/second sustained throughput under 3-replica Writer + 3-replica Worker.</constraint-1>
+    <constraint-2>Must not lose in-flight messages during rolling deployment or pod eviction (at-least-once delivery).</constraint-2>
+    <constraint-3>All structured logs must include correlationId; secrets and PII (account numbers, amounts) must be redacted at the Serilog enricher level.</constraint-3>
+    <constraint-4>Dapr sidecar must be present in every pod (Reader, Writer, Worker) for pub/sub and state management.</constraint-4>
+    <constraint-5>MongoDB must be configured with replica-set for transactional saga state persistence.</constraint-5>
+    <constraint-6>Read path (Reader API) must not interfere with write path (Writer→MQ→Worker). Separate connection pools.</constraint-6>
+  </Constraints>
+
+  <Risks>
+    <risk-1>Message ordering within a partition: if Wolverine sagas depend on strict ordering per correlationId, partition key design is critical.</risk-1>
+    <risk-2>Idempotency gaps: if the same payment message is replayed by the MQ after partial saga progress, duplicate steps must be detected and skipped.</risk-2>
+    <risk-3>Dapr pub/sub component latency at scale: verify that the chosen MQ binding (RabbitMQ/Kafka) sustains the required throughput under partition fan-out.</risk-3>
+    <risk-4>Cold-start saga hydration from MongoDB: large saga state documents may add latency when the Worker restarts and replays pending sagas.</risk-4>
+    <risk-5>Read-write consistency: MongoDB eventual consistency window may show stale payment states on Reader queries immediately after saga completion.</risk-5>
+  </Risks>
+
+  <OpenQuestions>
+    <question-1>Which MQ broker? Dapr supports RabbitMQ, Kafka, Azure Service Bus. Kafka is preferred for partition-native scaling; confirm.</question-1>
+    <question-2>SWIFT message format: ISO 20022 (XML) or MT (tag-based)? Affects message schema and validation.</question-2>
+    <question-3>How does Writer API authenticate requests? mTLS, API key, or Keycloak tokens from IdentityService?</question-3>
+    <question-4>Idempotency key derivation: hash(paymentId + amount + timestamp) or business-level key?</question-4>
+  </OpenQuestions>
+</RequirementsAnalysis>

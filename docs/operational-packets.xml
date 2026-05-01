@@ -1,0 +1,78 @@
+<OperationalPackets VERSION="0.1.0">
+  <ExecutionPacketTemplate>
+    <ExecutionPacket>
+      <module-id>M-EXAMPLE</module-id>
+      <purpose>Implement approved module without drift</purpose>
+      <write-scope>
+        <file-1>src/PaymentService.Example/</file-1>
+        <file-2>tests/PaymentService.Example.UnitTests/</file-2>
+      </write-scope>
+      <contract-excerpt>From docs/development-plan.xml</contract-excerpt>
+      <dependency-contract-summaries>
+        <dependency-1>From docs/development-plan.xml</dependency-1>
+      </dependency-contract-summaries>
+      <assumptions>
+        <assumption-1>Dapr 1.15 sidecar injected; DaprClient registered in DI</assumption-1>
+        <assumption-2>Wolverine (Worker only) configured with MongoDB saga persistence</assumption-2>
+        <assumption-3>FluentValidation registered as pipeline behavior</assumption-3>
+        <assumption-4>MongoDB replica-set available for transactional writes</assumption-4>
+      </assumptions>
+      <stop-conditions>
+        <condition-1>Stop if new external dependency required beyond approved stack</condition-1>
+        <condition-2>Stop if Dapr/Wolverine API surface unclear</condition-2>
+      </stop-conditions>
+      <retry-budget>2</retry-budget>
+    </ExecutionPacket>
+  </ExecutionPacketTemplate>
+
+  <GraphDeltaTemplate>
+    <GraphDelta module="M-EXAMPLE">
+      <imports-added />
+      <imports-removed />
+      <exports-added />
+      <exports-removed />
+      <annotations-added />
+      <annotations-removed />
+      <cross-links-added />
+      <cross-links-removed />
+    </GraphDelta>
+  </GraphDeltaTemplate>
+
+  <VerificationDeltaTemplate>
+    <VerificationDelta module="M-EXAMPLE">
+      <test-files-added />
+      <test-files-removed />
+      <module-checks />
+      <required-log-markers />
+      <required-trace-assertions />
+      <wave-follow-up />
+      <phase-follow-up />
+    </VerificationDelta>
+  </VerificationDeltaTemplate>
+
+  <FailurePacketTemplate>
+    <FailurePacket>
+      <scenario>Scenario</scenario>
+      <contract-ref>Module / Verification / scenario</contract-ref>
+      <expected-evidence>
+        <marker-1>[Expected][log][BLOCK]</marker-1>
+      </expected-evidence>
+      <observed-evidence>
+        <log-1>[Observed]</log-1>
+      </observed-evidence>
+      <first-divergent-block>BLOCK_NAME</first-divergent-block>
+      <suggested-next-action>Read contract, inspect block, apply fix</suggested-next-action>
+    </FailurePacket>
+  </FailurePacketTemplate>
+
+  <CheckpointReportTemplate>
+    <CheckpointReport>
+      <scope>M-EXAMPLE / step-N</scope>
+      <assumptions-kept />
+      <commands-run />
+      <evidence-captured />
+      <retry-budget-used>0</retry-budget-used>
+      <next-action>Ready for shared-artifact sync</next-action>
+    </CheckpointReport>
+  </CheckpointReportTemplate>
+</OperationalPackets>

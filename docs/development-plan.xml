@@ -1,0 +1,249 @@
+<DevelopmentPlan VERSION="0.2.0">
+  <ArchitectureNotes>
+    <objective>Deliver a horizontally scalable, CQRS-based payment processing microservice in MIF where Reader (read-only query path) and Writer (command gateway path) are independently deployable, with Worker sagas processing commands via MQ and persisting to MongoDB.</objective>
+    <non-goal>This plan does not cover IdentityService integration (delegated auth), SWIFT network adapters, or real-time FX.</non-goal>
+    <risk-1>Read-write consistency: MongoDB eventual consistency window may show stale states on Reader queries immediately after saga completion.</risk-1>
+    <risk-2>Partition key per saga: Wolverine saga ordering relies on partition key = correlationId. Incorrect key derivation breaks ordering.</risk-2>
+    <risk-3>Idempotency at saga boundaries: replay of a partially-processed saga must skip already-completed steps.</risk-3>
+  </ArchitectureNotes>
+
+  <Modules>
+    <M-SHARED NAME="SharedContracts" TYPE="UTILITY" LAYER="0" ORDER="0" STATUS="planned">
+      <contract>
+        <purpose>Shared DTOs, events, commands used across Reader, Writer, and Worker projects.</purpose>
+        <inputs></inputs>
+        <outputs>
+          <param name="PaymentRequestDto" type="record" />
+          <param name="PaymentCommand" type="record (command)" />
+          <param name="PaymentSettled" type="record (event)" />
+          <param name="PaymentDocument" type="record (MongoDB model)" />
+        </outputs>
+      </contract>
+      <interface>
+        <type-PaymentRequestDto PURPOSE="Inbound payment request schema for Writer API" />
+        <type-PaymentCommand PURPOSE="Payment processing command for Worker saga" />
+        <type-PaymentSettled PURPOSE="Payment settled event for audit" />
+      </interface>
+      <depends>none</depends>
+      <target>
+        <source>src/PaymentService.Shared/</source>
+        <tests>tests/PaymentService.Shared.UnitTests/</tests>
+      </target>
+      <verification-ref>V-M-SHARED</verification-ref>
+    </M-SHARED>
+
+    <M-READER NAME="PaymentService.Api.ReaderService" TYPE="ENTRY_POINT" LAYER="0" ORDER="1" STATUS="planned">
+      <contract>
+        <purpose>Read-only query API: receives payment status queries, validates via FluentValidation, queries MongoDB directly (no MQ, no saga involvement).</purpose>
+        <inputs>
+          <param name="queryRequest" type="PaymentQueryDto" />
+        </inputs>
+        <outputs>
+          <param name="paymentDocument" type="PaymentDocument (from MongoDB)" />
+          <param name="statusResponse" type="PaymentStatusDto (202 or 404)" />
+        </outputs>
+        <errors>
+          <error code="PAYMENT_NOT_FOUND" />
+          <error code="QUERY_VALIDATION_FAILED" />
+        </errors>
+      </contract>
+      <interface>
+        <export-GetPaymentByCorrelationId PURPOSE="GET /api/payments/{correlationId} — query payment status" />
+        <export-GetPaymentsBatch PURPOSE="GET /api/payments/batch — bulk query (paged)" />
+        <fn-QueryMongoDB PURPOSE="Direct read-only MongoDB query (no saga involved)" />
+      </interface>
+      <depends>M-SHARED</depends>
+      <target>
+        <source>src/PaymentService.Api.ReaderService/</source>
+        <tests>tests/PaymentService.Api.ReaderService.UnitTests/</tests>
+      </target>
+      <observability>
+        <log-prefix>[PaymentService.Api.ReaderService]</log-prefix>
+        <critical-block>BLOCK_QUERY_MONGODB</critical-block>
+        <critical-block>BLOCK_RETURN_RESPONSE</critical-block>
+      </observability>
+      <verification-ref>V-M-READER</verification-ref>
+    </M-READER>
+
+    <M-WRITER NAME="PaymentService.Api.WriterService" TYPE="ENTRY_POINT" LAYER="0" ORDER="2" STATUS="planned">
+      <contract>
+        <purpose>Command gateway API: receives payment commands, validates, routes to MQ via Dapr pub/sub (asynchronous, does not wait for saga completion). Returns 202 Accepted with correlationId.</purpose>
+        <inputs>
+          <param name="paymentRequest" type="PaymentRequestDto" />
+        </inputs>
+        <outputs>
+          <param name="acceptedResponse" type="AcceptedResult (202 + correlationId)" />
+          <param name="publishedMessage" type="PaymentCommand (published to MQ)" />
+        </outputs>
+        <errors>
+          <error code="VALIDATION_FAILED" />
+          <error code="PUBLISH_TO_MQ_FAILED" />
+        </errors>
+      </contract>
+      <interface>
+        <export-PostPayment PURPOSE="POST /api/payments — accept payment command, route to MQ" />
+        <fn-ValidatePaymentRequest PURPOSE="FluentValidation + business rules" />
+        <fn-PublishToMQ PURPOSE="Publish PaymentCommand to Dapr pub/sub with partition key = correlationId" />
+      </interface>
+      <depends>M-SHARED</depends>
+      <target>
+        <source>src/PaymentService.Api.WriterService/</source>
+        <tests>tests/PaymentService.Api.WriterService.UnitTests/</tests>
+      </target>
+      <observability>
+        <log-prefix>[PaymentService.Api.WriterService]</log-prefix>
+        <critical-block>BLOCK_VALIDATE_PAYMENT_REQUEST</critical-block>
+        <critical-block>BLOCK_PUBLISH_TO_MQ</critical-block>
+      </observability>
+      <verification-ref>V-M-WRITER</verification-ref>
+    </M-WRITER>
+
+    <M-WORKER NAME="PaymentService.WorkerService" TYPE="CORE_LOGIC" LAYER="1" ORDER="3" STATUS="planned">
+      <contract>
+        <purpose>Saga processor subscribed to MQ: receives PaymentCommand, executes Wolverine saga state machine (validate → enrich → settle → notify), persists saga state and payment document to MongoDB. Implements idempotency and compensation.</purpose>
+        <inputs>
+          <param name="paymentCommand" type="PaymentCommand (from MQ)" />
+        </inputs>
+        <outputs>
+          <param name="paymentSettled" type="PaymentSettled (event)" />
+          <param name="persistedPayment" type="PaymentDocument (in MongoDB)" />
+        </outputs>
+        <errors>
+          <error code="SAGA_VALIDATION_FAILED" />
+          <error code="SAGA_COMPENSATION_TRIGGERED" />
+          <error code="IDEMPOTENCY_VIOLATION" />
+        </errors>
+      </contract>
+      <interface>
+        <export-ProcessPaymentHandler PURPOSE="Wolverine message handler: receives PaymentCommand from MQ, starts PaySaga" />
+        <class-PaySaga PURPOSE="Wolverine saga: Validate → Enrich → Settle → Notify (with compensation on failure)" />
+        <fn-CheckIdempotency PURPOSE="Idempotency check against MongoDB ledger before each saga step" />
+        <fn-Compensate PURPOSE="Compensation logic: reverse settlement, release reserved funds, update saga state to Failed" />
+        <fn-PersistPaymentDocument PURPOSE="Persist or update payment document in MongoDB after saga step" />
+      </interface>
+      <depends>M-SHARED, M-MONGO</depends>
+      <target>
+        <source>src/PaymentService.WorkerService/</source>
+        <tests>tests/PaymentService.WorkerService.UnitTests/</tests>
+      </target>
+      <observability>
+        <log-prefix>[PaymentService.WorkerService]</log-prefix>
+        <critical-block>BLOCK_SAGA_START</critical-block>
+        <critical-block>BLOCK_VALIDATE_SAGA_STEP</critical-block>
+        <critical-block>BLOCK_IDEMPOTENCY_CHECK</critical-block>
+        <critical-block>BLOCK_PERSIST_PAYMENT</critical-block>
+        <critical-block>BLOCK_COMPENSATE</critical-block>
+      </observability>
+      <verification-ref>V-M-WORKER</verification-ref>
+    </M-WORKER>
+
+    <M-MONGO NAME="PaymentService.Persistence" TYPE="DATA_LAYER" LAYER="0" ORDER="4" STATUS="planned">
+      <contract>
+        <purpose>MongoDB data access layer: payment documents, saga state persistence, idempotency ledger, transactional session support.</purpose>
+        <inputs>
+          <param name="paymentDocument" type="PaymentDocument" />
+          <param name="sagaState" type="PaySagaState" />
+        </inputs>
+        <outputs>
+          <param name="persistedPayment" type="PaymentDocument" />
+          <param name="idempotencyResult" type="IdempotencyCheckResult" />
+        </outputs>
+        <errors>
+          <error code="DUPLICATE_KEY" />
+          <error code="TRANSACTION_FAILED" />
+        </errors>
+      </contract>
+      <interface>
+        <export-IPaymentDocumentRepository PURPOSE="Repository for payment document CRUD (used by Reader for queries, Worker for persistence)" />
+        <export-ISagaStateRepository PURPOSE="Repository for saga state CRUD with transactions" />
+        <export-IIdempotencyLedger PURPOSE="Interface for idempotency key tracking to prevent duplicate saga steps" />
+      </interface>
+      <depends>none</depends>
+      <target>
+        <source>src/PaymentService.Persistence/</source>
+        <tests>tests/PaymentService.Persistence.UnitTests/</tests>
+      </target>
+      <observability>
+        <log-prefix>[PaymentService.Persistence]</log-prefix>
+        <critical-block>BLOCK_TRANSACTIONAL_WRITE</critical-block>
+        <critical-block>BLOCK_IDEMPOTENCY_MARK</critical-block>
+      </observability>
+      <verification-ref>V-M-MONGO</verification-ref>
+    </M-MONGO>
+  </Modules>
+
+  <DataFlow>
+    <DF-COMMAND-PATH NAME="Command Path (Write)" TRIGGER="POST /api/payments">
+      <step-1>Writer API receives PaymentRequestDto, validates via FluentValidation, assigns correlationId.</step-1>
+      <step-2>Writer publishes PaymentCommand to Dapr pub/sub with partitionKey = correlationId (MQ partitioning).</step-2>
+      <step-3>Writer returns 202 Accepted + correlationId to caller (fire-and-forget).</step-3>
+      <step-4>Worker (subscribed to MQ partition) receives PaymentCommand, starts PaySaga.</step-4>
+      <step-5>Saga: validate → enrich → settle → notify. Each step checks idempotency ledger, persists state + payment document to MongoDB.</step-5>
+      <step-6>On saga completion: PaymentSettled event emitted, payment document status = Settled in MongoDB.</step-6>
+      <evidence>[Writer][PostPayment][BLOCK_PUBLISH_TO_MQ] → [Worker][ProcessPaymentHandler][BLOCK_SAGA_START] → [MongoPersistence][SavePaymentDocument][BLOCK_TRANSACTIONAL_WRITE]</evidence>
+    </DF-COMMAND-PATH>
+
+    <DF-QUERY-PATH NAME="Query Path (Read)" TRIGGER="GET /api/payments/{correlationId}">
+      <step-1>Reader API receives query with correlationId, validates via FluentValidation.</step-1>
+      <step-2>Reader queries MongoDB directly (no MQ, no saga involvement) for the payment document.</step-2>
+      <step-3>Reader returns 200 + payment document or 404 if not found.</step-3>
+      <evidence>[Reader][GetPaymentByCorrelationId][BLOCK_QUERY_MONGODB] → RETURNED (fast, ≤100ms p95)</evidence>
+    </DF-QUERY-PATH>
+
+    <DF-SAGA-LIFECYCLE NAME="Saga Lifecycle with Compensation" TRIGGER="PaymentCommand from MQ">
+      <step-1>Worker handler starts PaySaga with correlationId from partition key.</step-1>
+      <step-2>Saga step 1: ValidatePayment — check idempotency, validate DTO, check duplicate payment id.</step-2>
+      <step-3>Saga step 2: EnrichPayment — enrich with reference data from MongoDB.</step-3>
+      <step-4>Saga step 3: SettlePayment — mark as settled, persist final state.</step-4>
+      <step-5>On any step failure: trigger compensation → revert settlement, release reserved funds, update saga state = Failed.</step-5>
+      <evidence>[Worker][PaySaga][BLOCK_COMPENSATE] emitted on failure; no BLOCK_MARK_SETTLED after compensate; saga state persisted with status=Failed.</evidence>
+    </DF-SAGA-LIFECYCLE>
+  </DataFlow>
+
+  <ImplementationOrder>
+    <Phase-1 name="Foundation" status="pending">
+      <goal>Establish solution structure, shared contracts, persistence layer, and unit test harness.</goal>
+      <solution name="PaymentServices">
+        <step-1 module="M-SHARED" status="pending" verification="V-M-SHARED">Create PaymentServices.sln + PaymentService.Shared project with all DTOs/events/commands.</step-1>
+        <step-2 module="M-MONGO" status="pending" verification="V-M-MONGO">Implement PaymentService.Persistence: repositories, transactional sessions, idempotency ledger.</step-2>
+        <step-3 module="M-MONGO" status="pending" verification="V-M-MONGO">Integration tests: Testcontainers.MongoDB, transactional writes, idempotency key uniqueness.</step-3>
+      </solution>
+    </Phase-1>
+
+    <Phase-2 name="Reader-and-Writer" status="pending">
+      <goal>Query path (Reader) and command gateway (Writer) working end-to-end up to MQ publish.</goal>
+      <solution name="PaymentServices">
+        <step-1 module="M-READER" status="pending" verification="V-M-READER">Implement PaymentService.Api.ReaderService: GET endpoints, FluentValidation, MongoDB direct query (no MQ).</step-1>
+        <step-2 module="M-WRITER" status="pending" verification="V-M-WRITER">Implement PaymentService.Api.WriterService: POST endpoints, FluentValidation, Dapr pub/sub publish with partition key.</step-2>
+        <step-3 module="M-READER" status="pending" verification="V-M-READER">Integration test: Reader queries MongoDB, Reader/Writer endpoints respond correctly, Writer→MQ publish verified.</step-3>
+      </solution>
+    </Phase-2>
+
+    <Phase-3 name="Worker-Saga" status="pending">
+      <goal>Core saga processing: Wolverine saga state machine with validation, enrichment, settlement, and DLQ failure handling.</goal>
+      <solution name="PaymentServices">
+        <step-1 module="M-WORKER" status="pending" verification="V-M-WORKER">Implement PaymentService.WorkerService: PaySaga (validate→enrich→settle→notify), idempotency checks, MongoDB saga persistence.</step-1>
+        <step-2 module="M-WORKER" status="pending" verification="V-M-WORKER">DLQ handler: on saga failure at any step, publish FailedPaymentEvent to DLQ with full context (original input, failed step, error).</step-2>
+        <step-3 module="M-WORKER" status="pending" verification="V-M-WORKER">Saga integration tests: happy path, DLQ on validation failure, idempotency replay, concurrent saga isolation.</step-3>
+      </solution>
+    </Phase-3>
+
+    <Phase-4 name="Deployment-and-Scale" status="pending">
+      <goal>K8s manifests, Dapr component configs, GitOps pipeline, and throughput validation under load.</goal>
+      <solution name="PaymentServices">
+        <step-1 module="M-DEPLOY" status="pending" verification="V-M-DEPLOY">K8s manifests: Reader/Writer/Worker Deployments, Dapr pub/sub Component, MongoDB StatefulSet, DLQ topic.</step-1>
+        <step-2 module="M-DEPLOY" status="pending" verification="V-M-DEPLOY">GitOps pipeline: centralized repo integration, automated deploy on merge to main.</step-2>
+        <step-3 module="M-DEPLOY" status="pending" verification="V-M-DEPLOY">Load test: 1000 msg/s sustained on write path, 1000 queries/s on read path, verify partition distribution, measure p99 latency, validate zero message loss, DLQ processing.</step-3>
+      </solution>
+    </Phase-4>
+  </ImplementationOrder>
+
+  <ExecutionPolicy>
+    <default-profile>balanced</default-profile>
+    <controller-owns>docs/development-plan.xml, docs/knowledge-graph.xml, docs/verification-plan.xml</controller-owns>
+    <worker-owns>Only module source files and module-local tests inside the approved write scope.</worker-owns>
+    <max-fix-attempts-per-step>2</max-fix-attempts-per-step>
+    <replan-trigger>Missing dependency, contradictory contract, or unclear third-party surface.</replan-trigger>
+    <checkpoint-requirement>Every step must leave assumptions, commands run, evidence, and next action.</checkpoint-requirement>
+  </ExecutionPolicy>
+</DevelopmentPlan>

@@ -1,0 +1,65 @@
+<KnowledgeGraph>
+  <Project NAME="PaymentService (MIF)" VERSION="0.2.0">
+    <keywords>mif, payment-processing, swift, cqrs, dapr, wolverine, mongodb, k8s, saga, reader, writer, worker</keywords>
+    <annotation>High-throughput SWIFT-like payment processing microservice in MIF. CQRS: Reader (query-only), Writer (command gateway), Worker (saga processor).</annotation>
+
+    <M-SHARED NAME="SharedContracts" TYPE="UTILITY" STATUS="planned">
+      <purpose>Shared DTOs, events, commands across Reader, Writer, Worker.</purpose>
+      <path>src/PaymentService.Shared/</path>
+      <depends>none</depends>
+      <verification-ref>V-M-SHARED</verification-ref>
+      <annotations>
+        <type-PaymentRequestDto PURPOSE="Command DTO for Writer API" />
+        <type-PaymentCommand PURPOSE="Command for Worker saga" />
+        <type-PaymentSettled PURPOSE="Event: saga completion" />
+      </annotations>
+    </M-SHARED>
+
+    <M-READER NAME="PaymentService.Api.ReaderService" TYPE="ENTRY_POINT" STATUS="planned">
+      <purpose>Query-only API: MongoDB direct reads, no saga involvement, fast response.</purpose>
+      <path>src/PaymentService.Api.ReaderService/</path>
+      <depends>M-SHARED, M-MONGO</depends>
+      <verification-ref>V-M-READER</verification-ref>
+      <annotations>
+        <export-GetPaymentByCorrelationId PURPOSE="GET /api/payments/{correlationId}" />
+        <export-GetPaymentsBatch PURPOSE="GET /api/payments/batch (paged)" />
+      </annotations>
+    </M-READER>
+
+    <M-WRITER NAME="PaymentService.Api.WriterService" TYPE="ENTRY_POINT" STATUS="planned">
+      <purpose>Command gateway: routes commands to MQ via Dapr pub/sub, returns 202 Accepted.</purpose>
+      <path>src/PaymentService.Api.WriterService/</path>
+      <depends>M-SHARED</depends>
+      <verification-ref>V-M-WRITER</verification-ref>
+      <annotations>
+        <export-PostPayment PURPOSE="POST /api/payments — publish command to MQ" />
+      </annotations>
+    </M-WRITER>
+
+    <M-WORKER NAME="PaymentService.WorkerService" TYPE="CORE_LOGIC" STATUS="planned">
+      <purpose>Saga processor: subscribes to MQ PaymentCommand, executes saga, persists to MongoDB.</purpose>
+      <path>src/PaymentService.WorkerService/</path>
+      <depends>M-SHARED, M-MONGO</depends>
+      <verification-ref>V-M-WORKER</verification-ref>
+      <annotations>
+        <class-PaySaga PURPOSE="Wolverine saga: validate → enrich → settle → notify with compensation" />
+      </annotations>
+    </M-WORKER>
+
+    <M-MONGO NAME="PaymentService.Persistence" TYPE="DATA_LAYER" STATUS="planned">
+      <purpose>Payment documents, saga state, idempotency ledger, transactions.</purpose>
+      <path>src/PaymentService.Persistence/</path>
+      <depends>none</depends>
+      <verification-ref>V-M-MONGO</verification-ref>
+      <annotations>
+        <export-IPaymentDocumentRepository PURPOSE="CRUD for payment documents (Reader reads, Worker writes)" />
+        <export-ISagaStateRepository PURPOSE="Saga state persistence with transactions" />
+      </annotations>
+    </M-MONGO>
+
+    <CrossLink from="M-WRITER" to="M-SHARED" relation="publishes PaymentCommand" />
+    <CrossLink from="M-WORKER" to="M-SHARED" relation="consumes PaymentCommand" />
+    <CrossLink from="M-READER" to="M-MONGO" relation="queries payment documents" />
+    <CrossLink from="M-WORKER" to="M-MONGO" relation="persists saga state and payment documents" />
+  </Project>
+</KnowledgeGraph>
