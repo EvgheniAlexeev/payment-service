@@ -1,0 +1,23 @@
+// START_MODULE M-WORKER
+// START_BLOCK_SERVICE IValidationService
+// PURPOSE: External payment validation service contract.
+//          Validates payment requests against business rules, compliance, and fraud checks.
+// SEMANTIC_TAG: [BLOCK_SERVICE_INTERFACE] Export: IValidationService
+namespace PaymentService.Workers.Services;
+
+using PaymentService.Shared.Dtos;
+
+/// <summary>
+/// External payment validation service — checks business rules, compliance, and fraud.
+/// </summary>
+public interface IValidationService
+{
+    /// <summary>
+    /// Validate a payment request asynchronously.
+    /// Returns true if the payment passes all checks.
+    /// </summary>
+    /// <param name="request">The payment request to validate.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<bool> ValidatePaymentAsync(PaymentRequestDto request, CancellationToken ct = default);
+}
+// END_BLOCK_SERVICE
