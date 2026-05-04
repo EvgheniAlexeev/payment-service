@@ -1,0 +1,173 @@
+registry:
+  version: "1.0.0"
+  lastUpdated: "2026-05-04"
+  service: "PaymentService"
+  
+services:
+  PaymentService:
+    version: "1.0.0"
+    description: "Payment processing microservice"
+    repository: "github.com/EvgheniAlexeev/payment-service"
+    image: "ghcr.io/EvgheniAlexeev/payment-service"
+    
+    projects:
+      ReaderService:
+        name: "PaymentService.Api.ReaderService"
+        type: "Query/Read"
+        port: 8081
+      WriterService:
+        name: "PaymentService.Api.WriterService"
+        type: "Command/Write"
+        port: 8081
+      WorkerService:
+        name: "PaymentService.WorkerService"
+        type: "Saga/Worker"
+        port: 9999
+    
+    features:
+      # Reader Features
+      payment.get:
+        name: "GetPayment"
+        category: "Reader"
+        project: "ReaderService"
+        path: "Features/GetPayment"
+        endpoint:
+          method: "GET"
+          path: "/api/payments/{id}"
+          request: "GetPaymentRequest"
+          response: "GetPaymentResponse"
+          status: 200
+        handler: "GetPaymentHandler"
+        tests: 20+
+        semantic_blocks:
+          - QUERY_VALIDATION
+          - REPOSITORY_FETCH
+          - RESPONSE_MAPPING
+        verification:
+          - name: "test_get_payment_success"
+            description: "Valid payment ID returns payment details"
+          - name: "test_get_payment_not_found"
+            description: "Non-existent payment returns 404"
+      
+      payment.query:
+        name: "QueryPayments"
+        category: "Reader"
+        project: "ReaderService"
+        path: "Features/QueryPayments"
+        endpoint:
+          method: "POST"
+          path: "/api/payments/query"
+          request: "QueryPaymentsRequest"
+          response: "QueryPaymentsResponse"
+          status: 200
+        handler: "QueryPaymentsHandler"
+        tests: 17+
+        semantic_blocks:
+          - REQUEST_VALIDATION
+          - FILTER_BUILD
+          - REPOSITORY_QUERY
+          - PAGINATION
+          - RESPONSE_MAPPING
+        verification:
+          - name: "test_query_payments_with_filters"
+            description: "Filters applied correctly"
+          - name: "test_query_payments_pagination"
+            description: "Pagination working"
+      
+      # Writer Features (Week 3-4)
+      payment.create:
+        name: "CreatePayment"
+        category: "Writer"
+        project: "WriterService"
+        path: "Features/CreatePayment"
+        planned_for: "Week 3-4"
+        endpoint:
+          method: "POST"
+          path: "/api/payments"
+          request: "CreatePaymentRequest"
+          response: "CreatePaymentResponse"
+          status: 202
+        saga: "CreatePaymentSaga"
+        saga_steps:
+          - name: "Validate"
+            timeout: "1m"
+          - name: "Reserve"
+            timeout: "2m"
+          - name: "Settle"
+            timeout: "2m"
+        saga_timeout: "5m"
+        dlq: "PaymentFailedQueue"
+        tests: 40+
+      
+      # Worker Features (Week 3-4)
+      payment.saga.validate:
+        name: "ValidatePayment"
+        category: "Worker"
+        project: "WorkerService"
+        path: "Features/PaymentSaga/ValidatePayment"
+        planned_for: "Week 3-4"
+        handler: "ValidatePaymentHandler"
+        event_trigger: "ValidatePaymentCommand"
+        events_produced:
+          - "PaymentValidated"
+          - "PaymentFailed"
+      
+      payment.saga.reserve:
+        name: "ReservePayment"
+        category: "Worker"
+        project: "WorkerService"
+        planned_for: "Week 3-4"
+        handler: "ReservePaymentHandler"
+        event_trigger: "ReservePaymentCommand"
+        events_produced:
+          - "PaymentReserved"
+          - "PaymentFailed"
+      
+      payment.saga.settle:
+        name: "SettlePayment"
+        category: "Worker"
+        project: "WorkerService"
+        planned_for: "Week 3-4"
+        handler: "SettlePaymentHandler"
+        event_trigger: "SettlePaymentCommand"
+        events_produced:
+          - "PaymentSettled"
+          - "PaymentFailed"
+    
+    contracts:
+      payment.create:
+        name: "Payment Creation Contract"
+        version: "1.0"
+        input:
+          type: "CreatePaymentRequest"
+          required_fields:
+            - amount (decimal > 0)
+            - currency (ISO 4217)
+            - customerId (non-empty)
+            - correlationId (UUID)
+        saga_flow:
+          - step: "Validate"
+            input: "CreatePaymentRequest"
+            output: "PaymentValidated or PaymentFailed"
+          - step: "Reserve"
+            input: "PaymentValidated"
+            output: "PaymentReserved or PaymentFailed"
+          - step: "Settle"
+            input: "PaymentReserved"
+            output: "PaymentSettled or PaymentFailed"
+        output:
+          on_success:
+            type: "PaymentSettled"
+            contains:
+              - paymentId
+              - correlationId
+              - status: "settled"
+          on_failure:
+            type: "PaymentFailed"
+            dlq: true
+            preserves:
+              - originalRequest (for manual retry)
+              - error context
+        sla:
+          completion_time: "< 5 minutes"
+          idempotency: "CorrelationId (safe to retry)"
