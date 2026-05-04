@@ -1,0 +1,82 @@
+# Binaries
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.exe.config
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+.vscode/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Local history for Visual Studio
+.localhistory/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+*.rider
+
+# NuGet
+.nuget/
+*.nupkg
+*.snupkg
+packages/
+.nuget/packages/
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# Build Folders
+artifacts/
+publish/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+
+# Temp files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# IDE specific
+.vscode/
+launch.json
+tasks.json
