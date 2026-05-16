@@ -8,7 +8,6 @@
 // FILE: src/PaymentService.Api.WriterService/Handlers/ICreatePaymentHandler.cs
 // VERSION: 1.0.0
 
-using PaymentService.Api.WriterService.Models;
 using PaymentService.Shared;
 
 namespace PaymentService.Api.WriterService.Handlers;

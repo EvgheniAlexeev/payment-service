@@ -10,7 +10,6 @@
 
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using PaymentService.Api.WriterService.Models;
 
 namespace PaymentService.Api.WriterService.Validators;
 

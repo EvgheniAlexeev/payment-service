@@ -8,7 +8,6 @@
 // FILE: src/PaymentService.Api.ReaderService/Handlers/IGetPaymentHandler.cs
 // VERSION: 1.0.0
 
-using PaymentService.Api.ReaderService.Models;
 using PaymentService.Shared;
 using PaymentService.Shared.Dtos;
 

@@ -53,7 +53,7 @@ public class IdempotencyLedger : IIdempotencyLedger
 
             return true; // Successfully marked
         }
-        catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+        catch (MongoWriteException ex) when (ex.Message.Contains("E11000"))
         {
             _logger.LogInformation(
                 "[PaymentService.Persistence][IdempotencyLedger][BLOCK_IDEMPOTENCY_CHECK] " +

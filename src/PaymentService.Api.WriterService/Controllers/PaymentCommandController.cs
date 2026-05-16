@@ -10,7 +10,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Api.WriterService.Handlers;
-using PaymentService.Api.WriterService.Models;
 
 namespace PaymentService.Api.WriterService.Controllers;
 

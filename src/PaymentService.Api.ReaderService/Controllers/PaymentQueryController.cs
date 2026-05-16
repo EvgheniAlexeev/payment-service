@@ -10,7 +10,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 using PaymentService.Api.ReaderService.Handlers;
-using PaymentService.Api.ReaderService.Models;
 using PaymentService.Shared.Dtos;
 
 namespace PaymentService.Api.ReaderService.Controllers;
