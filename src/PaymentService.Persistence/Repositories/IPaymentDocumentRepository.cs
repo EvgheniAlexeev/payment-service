@@ -17,7 +17,7 @@ namespace PaymentService.Persistence.Repositories;
 /// Repository for PaymentDocument persistence operations.
 /// </summary>
 /// <remarks>
-/// <para><strong>@contract:</strong> M-PAYMENT-PERSIST</para>
+/// <para><strong>@contract:</strong> M-MONGO</para>
 /// <para><strong>@purpose:</strong> Data access interface for payment documents with MongoDB persistence</para>
 /// <para><strong>@invariant:</strong> CorrelationId is unique key across all payments</para>
 /// <para><strong>@invariant:</strong> All operations support transactional semantics via IClientSessionHandle</para>

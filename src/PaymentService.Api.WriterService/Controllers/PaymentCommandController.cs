@@ -21,7 +21,7 @@ namespace PaymentService.Api.WriterService.Controllers;
 /// Uses 202 Accepted pattern for async saga processing.
 /// </summary>
 /// <remarks>
-/// <para><strong>@contract:</strong> M-PAYMENT-WRITER</para>
+/// <para><strong>@contract:</strong> M-WRITER</para>
 /// <para><strong>@purpose:</strong> Provides HTTP command endpoint for payment submission with async saga initiation</para>
 /// <para><strong>@invariant:</strong> Response latency p99 ≤ 2s (202 Accepted returned immediately)</para>
 /// <para><strong>@invariant:</strong> All requests validated before persistence</para>
