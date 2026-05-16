@@ -12,6 +12,8 @@ namespace PaymentService.Shared.Commands;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Wolverine command to initiate payment processing saga</para>
 /// <para><strong>@invariant:</strong> IdempotencyKey and CorrelationId must be non-empty</para>
 /// <para><strong>@invariant:</strong> {CorrelationId}:{MessageVersion} unique constraint in MongoDB</para>

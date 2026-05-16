@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Models;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Captures saga execution state for idempotency and error recovery</para>
 /// <para><strong>@invariant:</strong> CorrelationId links to PaymentDocument</para>
 /// <para><strong>@invariant:</strong> CurrentStep consistent with CompletedSteps list</para>

@@ -22,6 +22,8 @@ namespace PaymentService.Api.WriterService.Controllers;
 /// </summary>
 /// <remarks>
 /// <para><strong>@contract:</strong> M-WRITER</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Provides HTTP command endpoint for payment submission with async saga initiation</para>
 /// <para><strong>@invariant:</strong> Response latency p99 ≤ 2s (202 Accepted returned immediately)</para>
 /// <para><strong>@invariant:</strong> All requests validated before persistence</para>

@@ -11,6 +11,8 @@ namespace PaymentService.Shared;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Generic result wrapper encapsulating success/failure state with optional data</para>
 /// <para><strong>@invariant:</strong> IsSuccess AND Error mutually exclusive</para>
 /// <para><strong>@invariant:</strong> Data populated only when IsSuccess=true</para>
@@ -46,6 +48,8 @@ public class Result<T>
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Non-generic result for void operations</para>
 /// <para><strong>@invariant:</strong> IsSuccess AND Error mutually exclusive</para>
 /// </summary>

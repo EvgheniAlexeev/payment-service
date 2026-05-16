@@ -11,6 +11,8 @@ namespace PaymentService.Shared.Models;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> MongoDB document storing payment state and timeline</para>
 /// <para><strong>@invariant:</strong> CorrelationId is unique (MongoDB unique index)</para>
 /// <para><strong>@invariant:</strong> Status in {Pending, Validating, Enriching, Settling, Settled, Failed, Compensated}</para>

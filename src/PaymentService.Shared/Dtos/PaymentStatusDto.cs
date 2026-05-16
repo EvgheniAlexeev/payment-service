@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Dtos;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Value object returned by Reader API for payment status queries</para>
 /// <para><strong>@invariant:</strong> CorrelationId maps to exactly one payment document</para>
 /// <para><strong>@invariant:</strong> Status in {Pending, Validating, Enriching, Settling, Settled, Failed}</para>

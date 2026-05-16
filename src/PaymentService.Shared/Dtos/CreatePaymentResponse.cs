@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Dtos;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Response model for successful payment creation (202 Accepted)</para>
 /// </summary>
 public class CreatePaymentResponse

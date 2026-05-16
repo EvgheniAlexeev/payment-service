@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Dtos;
 /// </summary>
 /// <remarks>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> DTO carrying payment creation request with PII redaction requirements</para>
 /// <para><strong>@invariant:</strong> Amount > 0</para>
 /// <para><strong>@invariant:</strong> Currency is valid ISO 4217 code</para>

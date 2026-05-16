@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Events;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Success event emitted by PaymentSaga when settlement completes</para>
 /// <para><strong>@invariant:</strong> CorrelationId matches initiating PaymentCommand</para>
 /// <para><strong>@invariant:</strong> SettlementId is unique per settlement attempt</para>

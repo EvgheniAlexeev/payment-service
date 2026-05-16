@@ -9,6 +9,8 @@ namespace PaymentService.Shared.Events;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Failure event emitted when any saga step fails, routes to DLQ</para>
 /// <para><strong>@invariant:</strong> CorrelationId matches PaymentCommand</para>
 /// <para><strong>@invariant:</strong> FailedStep ∈ {Validate, Enrich, Settle, Notify}</para>
