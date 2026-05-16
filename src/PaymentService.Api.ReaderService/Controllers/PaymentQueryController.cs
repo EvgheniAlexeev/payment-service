@@ -72,7 +72,7 @@ public class PaymentQueryController : ControllerBase
             "Querying payment {CorrelationId}", correlationId);
 
         var result = await _handler.HandleAsync(
-            new GetPaymentRequest { CorrelationId = correlationId }, ct);
+            new GetPaymentRequest { PaymentId = correlationId }, ct);
 
         if (result.IsNotFound)
         {

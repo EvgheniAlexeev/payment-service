@@ -47,12 +47,9 @@ public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
             .Length(3).WithMessage("Currency must be a 3-letter ISO 4217 code")
             .Must(IsValidCurrencyCode).WithMessage("Currency must contain only uppercase letters A-Z");
 
-        When(x => x.ValueDate.HasValue, () =>
-        {
-            RuleFor(x => x.ValueDate!.Value)
-                .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
-                .WithMessage("ValueDate cannot be in the past");
-        });
+        RuleFor(x => x.ValueDate)
+            .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
+            .WithMessage("ValueDate cannot be in the past");
     }
 
     private static bool IsValidCurrencyCode(string code) =>

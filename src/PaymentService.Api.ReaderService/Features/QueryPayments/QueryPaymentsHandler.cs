@@ -53,7 +53,7 @@ public class QueryPaymentsHandler
             var response = new PagedPaymentStatusResponse
             {
                 Items = payments.Select(MapToStatusDto).ToList(),
-                TotalCount = payments.Count,
+                Total = payments.Count,
                 Page = request.Page,
                 PageSize = pageSize
             };
