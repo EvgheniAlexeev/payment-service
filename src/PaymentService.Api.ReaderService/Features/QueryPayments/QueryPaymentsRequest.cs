@@ -1,4 +1,5 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/QueryPayments/QueryPaymentsRequest.cs
+using PaymentService.Shared.Dtos;
 // VERSION: 2.0.0
 // MODULE: M-READER
 // PURPOSE: Query request DTO

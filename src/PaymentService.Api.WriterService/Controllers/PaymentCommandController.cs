@@ -1,4 +1,6 @@
 // FILE: src/PaymentService.Api.WriterService/Controllers/PaymentCommandController.cs
+using PaymentService.Shared.Dtos;
+using PaymentService.Shared.Commands;
 // VERSION: 2.0.0
 // MODULE: M-WRITER
 // PURPOSE: HTTP controller for payment command endpoints

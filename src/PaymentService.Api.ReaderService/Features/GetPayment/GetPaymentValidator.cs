@@ -1,4 +1,5 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/GetPayment/GetPaymentValidator.cs
+using PaymentService.Shared.Dtos;
 // VERSION: 2.0.0
 // MODULE: M-READER
 // PURPOSE: FluentValidation rules for request DTOs

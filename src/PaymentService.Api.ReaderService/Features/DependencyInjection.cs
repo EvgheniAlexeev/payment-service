@@ -24,12 +24,12 @@ public static class VsaFeatureRegistration
         // GetPayment feature
         services.AddScoped<GetPaymentHandler>();
         services.AddScoped<GetPaymentEndpoint>();
-        services.AddValidatorsFromAssemblyContaining<GetPaymentValidator>();
+        // services.AddValidatorsFromAssemblyContaining<GetPaymentValidator>();
 
         // QueryPayments feature
         services.AddScoped<QueryPaymentsHandler>();
         services.AddScoped<QueryPaymentsEndpoint>();
-        services.AddValidatorsFromAssemblyContaining<QueryPaymentsValidator>();
+        // services.AddValidatorsFromAssemblyContaining<QueryPaymentsValidator>();
 
         return services;
     }

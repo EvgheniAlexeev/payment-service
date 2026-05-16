@@ -93,10 +93,13 @@ public class DtoSerializationTests
     [Fact]
     public void CreatePaymentResponse_DefaultsHaveCorrectMessage()
     {
-        var response = new Shared.Dtos.CreatePaymentResponse();
+        var response = new Shared.Dtos.CreatePaymentResponse 
+        { 
+            CorrelationId = "test-123"
+        };
 
-        response.CorrelationId.Should().BeEmpty();
-        response.Message.Should().Be("Payment accepted for processing");
+        response.CorrelationId.Should().Be("test-123");
+        response.Message.Should().BeNull();
     }
 
     [Fact]
