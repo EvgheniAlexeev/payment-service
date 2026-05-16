@@ -17,25 +17,44 @@
     "adapters": "src/**/*Adapter.cs"
   },
   "documentationFormat": {
+    "notes": "Phase-3 Lean Contract Format (Session 3, 2026-05-16): All classes use 4-tag format only. Removed tags: @module-type, @domain-concept, @stability, @depends (use knowledge-graph.xml for dependencies instead).",
     "module": {
       "tags": [
-        "@contract (M-xxx)",
-        "@purpose (one sentence, concrete verb)",
-        "@module-type (ENTRY_POINT|CORE_LOGIC|DATA_LAYER|UTILITY|INTEGRATION)",
-        "@depends (module list)",
-        "@invariant (state constraints)",
-        "@stability (STABLE|EVOLVING|EXPERIMENTAL)"
+        "@contract (M-xxx from knowledge-graph.xml)",
+        "@purpose (one sentence, concrete verb describing class semantics)",
+        "@invariant (business rule or state constraint — one per tag, testable)",
+        "@verification-ref (V-M-xxx from docs/verification-plan.xml)"
       ],
-      "style": "xml-comments-block-at-namespace-level"
+      "style": "xml-comments-block-above-class",
+      "example": "/// <summary>\n/// <para><strong>@contract:</strong> M-SHARED</para>\n/// <para><strong>@purpose:</strong> Wolverine command to initiate payment saga</para>\n/// <para><strong>@invariant:</strong> IdempotencyKey and CorrelationId must be non-empty</para>\n/// <para><strong>@verification-ref:</strong> V-M-SHARED</para>\n/// </summary>\n// START_BLOCK_SEMANTIC_NAME\npublic record PaymentCommand { }"
     },
-    "class_interface": {
+    "value_objects": {
+      "description": "DTOs, Commands, Events, Models",
       "tags": [
-        "@domain-concept (semantic term)",
-        "@aggregate-root (YES|NO for DDD)",
-        "@value-object (YES|NO)",
-        "@invariant (object-level constraints)"
+        "@contract (M-xxx)",
+        "@purpose (one-line semantic action)",
+        "@invariant (business rule, one per tag)",
+        "@verification-ref (V-M-xxx)"
       ],
-      "style": "xml-comments-above-class"
+      "no_tags": [
+        "@property (use inline comments instead)",
+        "@module-type (use knowledge-graph.xml)",
+        "@domain-concept (redundant with class name)",
+        "@stability (implicit for Phase-2+ work)",
+        "@depends (use knowledge-graph.xml)"
+      ],
+      "style": "4-tag format, never add verbose metadata"
+    },
+    "handlers": {
+      "description": "Command/Event handlers, Processors, Controllers",
+      "tags": [
+        "@contract (M-xxx)",
+        "@purpose (mention BLOCK_ marker if architectural navigation needed)",
+        "@invariant (key behavior constraint)",
+        "@verification-ref (V-M-xxx)"
+      ],
+      "note": "BLOCK_ markers live in production code logs. Mention in @purpose for navigation only (never duplicate).",
+      "example": "/// <summary>\n/// <para><strong>@contract:</strong> M-WRITER</para>\n/// <para><strong>@purpose:</strong> Payment creation handler with [BLOCK_HANDLER_CREATE] markers</para>\n/// <para><strong>@invariant:</strong> Idempotent: duplicate CorrelationId returns cached</para>\n/// <para><strong>@verification-ref:</strong> V-M-WRITER</para>\n/// </summary>\npublic class CreatePaymentHandler { }"
     },
     "method": {
       "tags": [
@@ -43,28 +62,23 @@
         "@param (parameter descriptions)",
         "@return (return value description)",
         "@throws (exception conditions)",
-        "@log-event (observable markers)",
-        "@trace-span (OpenTelemetry span names)",
-        "@pre-condition (entry requirements)",
-        "@post-condition (exit guarantees)",
-        "@idempotent (YES|NO)",
-        "@pure (YES|NO, side effects?)",
-        "@complexity (O(1), O(log n), O(n), etc.)"
+        "@log-event (observable markers if applicable)",
+        "@trace-span (OpenTelemetry span names if applicable)"
       ],
-      "style": "xml-comments-above-method"
+      "style": "xml-comments-above-method",
+      "note": "Only use @log-event and @trace-span if actually instrumenting the method"
     },
     "field_property": {
       "tags": [
-        "@invariant (field constraint)",
-        "@valid-range (min-max, pattern)",
-        "@unit (measurement unit if applicable)",
-        "@required (YES|NO)"
+        "@invariant (field constraint) [OPTIONAL: only if non-obvious]",
+        "@unit (measurement unit if applicable) [OPTIONAL]"
       ],
-      "style": "xml-comments-above-property"
+      "note": "Property names are self-explanatory; use inline comments only for non-obvious meanings. Do NOT use @property tags.",
+      "style": "xml-comments-above-property or inline // comment"
     }
   },
   "extractionRules": {
-    "contractIdPattern": "M-[A-Z][A-Z0-9]*-[A-Z]+",
+    "contractIdPattern": "M-[A-Z][A-Z0-9]*",
     "readFrom": "source-files-only",
     "skipDirs": ["bin", "obj", "tests", ".vs", ".vscode"],
     "skipFiles": ["*.csproj.lscache", "*.AssemblyInfo.cs"],
@@ -72,31 +86,31 @@
     "suppressExtractionFrom": "docs/doxygen-skeletons"
   },
   "modules": {
-    "M-PAYMENT-READER": {
+    "M-READER": {
       "name": "PaymentService.Api.ReaderService",
       "sourceRoot": "src/PaymentService.Api.ReaderService",
       "type": "ENTRY_POINT",
-      "depends": ["M-PAYMENT-PERSIST", "M-PAYMENT-SHARED"]
+      "depends": ["M-MONGO", "M-SHARED"]
     },
-    "M-PAYMENT-WRITER": {
+    "M-WRITER": {
       "name": "PaymentService.Api.WriterService",
       "sourceRoot": "src/PaymentService.Api.WriterService",
       "type": "ENTRY_POINT",
-      "depends": ["M-PAYMENT-PERSIST", "M-PAYMENT-SHARED"]
+      "depends": ["M-MONGO", "M-SHARED"]
     },
-    "M-PAYMENT-PERSIST": {
+    "M-MONGO": {
       "name": "PaymentService.Persistence",
       "sourceRoot": "src/PaymentService.Persistence",
       "type": "DATA_LAYER",
-      "depends": ["M-PAYMENT-SHARED"]
+      "depends": ["M-SHARED"]
     },
-    "M-PAYMENT-WORKER": {
+    "M-WORKER": {
       "name": "PaymentService.WorkerService",
       "sourceRoot": "src/PaymentService.WorkerService",
       "type": "CORE_LOGIC",
-      "depends": ["M-PAYMENT-PERSIST", "M-PAYMENT-SHARED"]
+      "depends": ["M-MONGO", "M-SHARED"]
     },
-    "M-PAYMENT-SHARED": {
+    "M-SHARED": {
       "name": "PaymentService.Shared",
       "sourceRoot": "src/PaymentService.Shared",
       "type": "UTILITY",
@@ -106,6 +120,7 @@
   "migrationState": {
     "skeletonsLocation": "docs/doxygen-skeletons",
     "migrationStrategy": "skeleton-to-source",
-    "status": "pending-skeleton-migration"
+    "status": "source-migration-in-progress",
+    "notes": "Phase-3 cleanup: Updated module IDs to match knowledge-graph.xml (M-SHARED, M-READER, M-WRITER, M-MONGO, M-WORKER). Updated documentationFormat to Phase-3 lean 4-tag format. Removed deprecated tags. Code regeneration needed via batch processor."
   }
 }
