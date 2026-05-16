@@ -1,3 +1,10 @@
+// FILE: ISettlementService.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: External service dependency
+// SEMANTIC_TAG: [SERVICE_ABSTRACTION, DEPENDENCY]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_SERVICE ISettlementService
 // PURPOSE: External settlement service contract for final payment settlement.

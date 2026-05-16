@@ -1,3 +1,10 @@
+// FILE: IDLQPublisher.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: External service dependency
+// SEMANTIC_TAG: [SERVICE_ABSTRACTION, DEPENDENCY]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_SERVICE IDLQPublisher
 // PURPOSE: Dead Letter Queue publisher contract for failed saga events.

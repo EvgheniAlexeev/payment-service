@@ -1,4 +1,11 @@
 // FILE: tests/.../ReaderService.IntegrationTests/PaymentReaderBatchTests.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
+// FILE: tests/.../ReaderService.IntegrationTests/PaymentReaderBatchTests.cs
 // VERSION: 1.0.0
 
 using System.Net;

@@ -1,3 +1,10 @@
+// FILE: PaymentSagaState.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Saga state persistence model
+// SEMANTIC_TAG: [SAGA_STATE, PERSISTENCE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_SAGA_STATE PaymentSagaState
 // PURPOSE: Wolverine saga state document persisted in MongoDB.

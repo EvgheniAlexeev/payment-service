@@ -1,3 +1,10 @@
+// FILE: Program.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Wolverine saga orchestration bootstrapping
+// SEMANTIC_TAG: [SAGA_BOOTSTRAP, WOLVERINE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_PROGRAM Program
 // PURPOSE: Worker host entry point for PaymentService.Workers.

@@ -1,3 +1,10 @@
+// FILE: DependencyInjection.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Service registration for saga handlers
+// SEMANTIC_TAG: [DI_EXTENSION]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_DI DependencyInjection
 // PURPOSE: Extension method to register all Worker services in the DI container.

@@ -1,3 +1,10 @@
+// FILE: ServiceConfiguration.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: External service dependency
+// SEMANTIC_TAG: [SERVICE_ABSTRACTION, DEPENDENCY]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_CONFIG ServiceConfiguration
 // PURPOSE: Configuration for external service endpoints (validation, ledger, settlement).

@@ -1,3 +1,10 @@
+// FILE: PaymentSettledInternal.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Saga internal or external event
+// SEMANTIC_TAG: [SAGA_EVENT, MESSAGE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_EVENT PaymentSettledInternal
 // PURPOSE: Wolverine event emitted after settlement completes — consumed by saga to advance state.

@@ -1,3 +1,10 @@
+// FILE: ReserveFundsCommand.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Wolverine saga command
+// SEMANTIC_TAG: [SAGA_COMMAND, MESSAGE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_COMMAND ReserveFundsCommand
 // PURPOSE: Wolverine command dispatched from saga to the ReserveFundsHandler.
