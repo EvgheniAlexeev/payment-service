@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/GetPayment/GetPaymentValidator.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: FluentValidation rules for request DTOs
+// SEMANTIC_TAG: [VALIDATOR, INPUT_VALIDATION]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Features/GetPayment/GetPaymentValidator.cs
 // VERSION: 1.0.0
 
 using FluentValidation;

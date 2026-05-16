@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Persistence/DependencyInjection.cs
+// VERSION: 2.0.0
+// MODULE: M-MONGO
+// PURPOSE: MongoDB service registration
+// SEMANTIC_TAG: [DI_EXTENSION, MONGODB]
+// START_MODULE M_MONGO
+
+// FILE: src/PaymentService.Persistence/DependencyInjection.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.DependencyInjection;

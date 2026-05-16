@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.WriterService/Program.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: ASP.NET Core bootstrapping for Writer API
+// SEMANTIC_TAG: [API_BOOTSTRAP]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Program.cs
 // VERSION: 1.0.0
 
 using PaymentService.Api.WriterService;

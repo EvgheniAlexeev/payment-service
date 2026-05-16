@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/QueryPayments/QueryPaymentsEndpoint.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: Minimal API endpoint definition
+// SEMANTIC_TAG: [ENDPOINT, ROUTE_DEFINITION]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Features/QueryPayments/QueryPaymentsEndpoint.cs
 // VERSION: 1.0.0
 
 using Microsoft.AspNetCore.Mvc;

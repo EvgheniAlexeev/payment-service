@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.WriterService/Models/CreatePaymentResponse.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: Command response DTO
+// SEMANTIC_TAG: [RESPONSE_DTO]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Models/CreatePaymentResponse.cs
 // VERSION: 1.0.0
 
 using PaymentService.Shared;

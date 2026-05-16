@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.WriterService/Validators/CreatePaymentValidator.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: FluentValidation rules
+// SEMANTIC_TAG: [VALIDATOR]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Validators/CreatePaymentValidator.cs
 // VERSION: 1.0.0
 
 using FluentValidation;

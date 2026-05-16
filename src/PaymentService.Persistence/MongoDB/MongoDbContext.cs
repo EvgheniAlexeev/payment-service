@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Persistence/MongoDB/MongoDbContext.cs
+// VERSION: 2.0.0
+// MODULE: M-MONGO
+// PURPOSE: MongoDB context and database wrapper
+// SEMANTIC_TAG: [DB_CONTEXT, MONGODB]
+// START_MODULE M_MONGO
+
+// FILE: src/PaymentService.Persistence/MongoDB/MongoDbContext.cs
 // VERSION: 1.0.0
 
 using MongoDB.Driver;

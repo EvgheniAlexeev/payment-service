@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Persistence/Repositories/IdempotencyLedger.cs
+// VERSION: 2.0.0
+// MODULE: M-MONGO
+// PURPOSE: MongoDB repository pattern implementation
+// SEMANTIC_TAG: [REPOSITORY, DATA_ACCESS]
+// START_MODULE M_MONGO
+
+// FILE: src/PaymentService.Persistence/Repositories/IdempotencyLedger.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;

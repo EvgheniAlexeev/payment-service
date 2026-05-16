@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.WriterService/DependencyInjection.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: Service registration for Writer API
+// SEMANTIC_TAG: [DI_EXTENSION]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/DependencyInjection.cs
 // VERSION: 1.0.0
 
 using PaymentService.Api.WriterService.Handlers;

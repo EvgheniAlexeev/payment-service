@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.WriterService/Controllers/PaymentCommandController.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: HTTP controller for payment command endpoints
+// SEMANTIC_TAG: [HTTP_CONTROLLER]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Controllers/PaymentCommandController.cs
 // VERSION: 1.0.0
 
 using Microsoft.AspNetCore.Mvc;

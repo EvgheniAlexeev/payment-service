@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Controllers/PaymentQueryController.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: HTTP controller for payment query endpoints
+// SEMANTIC_TAG: [HTTP_CONTROLLER, API_GATEWAY]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Controllers/PaymentQueryController.cs
 // VERSION: 1.0.0
 
 using Microsoft.AspNetCore.Mvc;
