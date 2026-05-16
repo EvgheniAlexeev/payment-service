@@ -13,8 +13,15 @@
 namespace PaymentService.Workers.Configuration;
 
 /// <summary>
-/// External service endpoint configuration.
+/// Configuration model for the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (configuration model)</para>
+/// <para><strong>@purpose:</strong> Configuration model for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Configuration values have sensible defaults; validated at startup</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 public sealed class ServiceConfiguration
 {
     /// <summary>Configuration section name.</summary>

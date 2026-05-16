@@ -10,7 +10,6 @@ namespace PaymentService.Shared.Commands;
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
 /// <para><strong>@purpose:</strong> Request model for payment creation via Writer API</para>
-/// <para><strong>@module-type:</strong> UTILITY (data contract)</para>
 /// </summary>
 public class CreatePaymentRequest
 {

@@ -10,14 +10,11 @@ namespace PaymentService.Shared.Dtos;
 /// <remarks>
 /// <para><strong>@contract:</strong> M-PAYMENT-SHARED</para>
 /// <para><strong>@purpose:</strong> DTO carrying payment creation request with PII redaction requirements</para>
-/// <para><strong>@module-type:</strong> UTILITY</para>
-/// <para><strong>@domain-concept:</strong> PaymentRequestDto (value object)</para>
 /// <para><strong>@invariant:</strong> Amount > 0</para>
 /// <para><strong>@invariant:</strong> Currency is valid ISO 4217 code</para>
 /// <para><strong>@invariant:</strong> SenderAccount and ReceiverAccount different</para>
 /// <para><strong>@invariant:</strong> Description must be redacted in log output</para>
-/// <para><strong>@stability:</strong> STABLE</para>
-/// <para><strong>@verification-ref:</strong> V-M-SHARED-PAY</para>
+/// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </remarks>
 public record PaymentRequestDto
 {

@@ -11,8 +11,6 @@ namespace PaymentService.Shared.Dtos;
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
 /// <para><strong>@purpose:</strong> Paginated response wrapper for payment status queries</para>
-/// <para><strong>@module-type:</strong> UTILITY (response DTO)</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// </summary>
 public record PagedPaymentStatusResponse
 {

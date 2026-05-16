@@ -12,14 +12,10 @@ namespace PaymentService.Shared.Models;
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
 /// <para><strong>@purpose:</strong> MongoDB document storing payment state and timeline</para>
-/// <para><strong>@module-type:</strong> UTILITY (persistence model)</para>
-/// <para><strong>@depends:</strong> PaymentService.Shared.Dtos.PaymentRequestDto</para>
-/// <para><strong>@domain-concept:</strong> PaymentDocument (aggregate root)</para>
 /// <para><strong>@invariant:</strong> CorrelationId is unique (MongoDB unique index)</para>
 /// <para><strong>@invariant:</strong> Status in {Pending, Validating, Enriching, Settling, Settled, Failed, Compensated}</para>
 /// <para><strong>@invariant:</strong> ModifiedAt ≥ CreatedAt when populated</para>
 /// <para><strong>@invariant:</strong> SettledAt only non-null when Status=Settled</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 

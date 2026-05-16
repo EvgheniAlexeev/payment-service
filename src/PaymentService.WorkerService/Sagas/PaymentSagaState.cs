@@ -13,12 +13,18 @@
 // SEMANTIC_TAG: [BLOCK_SAGA_STATE] persisted to MongoDB "payment_saga_states" collection
 namespace PaymentService.Workers.Sagas;
 
+/// <summary>
+/// Saga state document persisted in MongoDB for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (saga state document, persists saga lifecycle to MongoDB)</para>
+/// <para><strong>@purpose:</strong> Saga state document persisted in MongoDB for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Saga state captures all lifecycle data; TTL index auto-expires after configured duration</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using PaymentService.Shared.Dtos;
 
-/// <summary>
-/// Wolverine saga state document for the Payment orchestration saga.
-/// Persisted in MongoDB with 7-day TTL auto-expiry.
-/// </summary>
 public sealed class PaymentSagaState
 {
     /// <summary>

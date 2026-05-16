@@ -13,8 +13,15 @@
 namespace PaymentService.Workers.Events;
 
 /// <summary>
-/// Internal Wolverine event for settlement step completion.
+/// Component of the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (component)</para>
+/// <para><strong>@purpose:</strong> Component of the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All properties are immutable after construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 public sealed record PaymentSettledInternal
 {
     /// <summary>Correlation ID of the settled payment.</summary>

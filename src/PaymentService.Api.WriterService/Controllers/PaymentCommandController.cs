@@ -23,14 +23,10 @@ namespace PaymentService.Api.WriterService.Controllers;
 /// <remarks>
 /// <para><strong>@contract:</strong> M-PAYMENT-WRITER</para>
 /// <para><strong>@purpose:</strong> Provides HTTP command endpoint for payment submission with async saga initiation</para>
-/// <para><strong>@module-type:</strong> ENTRY_POINT</para>
-/// <para><strong>@depends:</strong> M-PAYMENT-SHARED, M-PAYMENT-PERSIST</para>
-/// <para><strong>@domain-concept:</strong> PaymentCommandController</para>
 /// <para><strong>@invariant:</strong> Response latency p99 ≤ 2s (202 Accepted returned immediately)</para>
 /// <para><strong>@invariant:</strong> All requests validated before persistence</para>
 /// <para><strong>@invariant:</strong> Idempotency key prevents duplicate processing</para>
-/// <para><strong>@stability:</strong> STABLE</para>
-/// <para><strong>@verification-ref:</strong> V-M-WRITER-PAY</para>
+/// <para><strong>@verification-ref:</strong> V-M-WRITER</para>
 /// </remarks>
 [ApiController]
 [Route("api/[controller]")]

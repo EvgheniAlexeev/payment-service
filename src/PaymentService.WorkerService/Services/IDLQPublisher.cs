@@ -12,12 +12,18 @@
 // SEMANTIC_TAG: [BLOCK_SERVICE_INTERFACE] Export: IDLQPublisher
 namespace PaymentService.Workers.Services;
 
+/// <summary>
+/// Service abstraction contract for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (service abstraction, dependency injection contract)</para>
+/// <para><strong>@purpose:</strong> Service abstraction contract for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All implementations must be thread-safe and respect cancellation tokens</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using PaymentService.Shared.Events;
 
-/// <summary>
-/// Dead Letter Queue publisher for failed payment events.
-/// Enables manual operator review of failures (no automatic compensation).
-/// </summary>
 public interface IDLQPublisher
 {
     /// <summary>

@@ -21,13 +21,9 @@ namespace PaymentService.Api.ReaderService.Controllers;
 /// <remarks>
 /// <para><strong>@contract:</strong> M-PAYMENT-READER</para>
 /// <para><strong>@purpose:</strong> Provides HTTP query endpoints for payment retrieval with fast synchronized reads from MongoDB</para>
-/// <para><strong>@module-type:</strong> ENTRY_POINT</para>
-/// <para><strong>@depends:</strong> M-PAYMENT-SHARED, M-PAYMENT-PERSIST</para>
-/// <para><strong>@domain-concept:</strong> PaymentQueryController</para>
 /// <para><strong>@invariant:</strong> Response latency p99 ≤ 100ms</para>
 /// <para><strong>@invariant:</strong> All queries validated before database access</para>
-/// <para><strong>@stability:</strong> STABLE</para>
-/// <para><strong>@verification-ref:</strong> V-M-READER-PAY</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
 /// </remarks>
 [ApiController]
 [Route("api/[controller]")]

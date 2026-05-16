@@ -12,11 +12,18 @@
 // SEMANTIC_TAG: [BLOCK_COMMAND] Wolverine ICommand
 namespace PaymentService.Workers.Commands;
 
+/// <summary>
+/// Wolverine command for saga step execution in the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (Wolverine command, immutable value object)</para>
+/// <para><strong>@purpose:</strong> Wolverine command for saga step execution in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Immutable Wolverine command; all properties set at construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using PaymentService.Shared.Dtos;
 
-/// <summary>
-/// Command dispatched from PaymentSaga to the ValidatePayment step handler.
-/// </summary>
 public sealed record ValidatePaymentCommand
 {
     /// <summary>Correlation ID of the payment.</summary>

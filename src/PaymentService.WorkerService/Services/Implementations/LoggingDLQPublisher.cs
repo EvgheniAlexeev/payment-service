@@ -14,15 +14,20 @@
 // SEMANTIC_TAG: [BLOCK_DLQ] Manual DLQ compensation — operator reviews log output
 namespace PaymentService.Workers.Services.Implementations;
 
+/// <summary>
+/// Component of the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (component)</para>
+/// <para><strong>@purpose:</strong> Component of the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All properties are immutable after construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using Microsoft.Extensions.Logging;
 using PaymentService.Shared.Events;
 using System.Text.Json;
 
-/// <summary>
-/// Logging-based DLQ publisher.
-/// Failed payment events are logged as structured JSON for operator review.
-/// In production, this would be replaced by a message-broker-based publisher.
-/// </summary>
 public class LoggingDLQPublisher : IDLQPublisher
 {
     private readonly ILogger<LoggingDLQPublisher> _logger;

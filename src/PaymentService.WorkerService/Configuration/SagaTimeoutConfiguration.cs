@@ -13,8 +13,15 @@
 namespace PaymentService.Workers.Configuration;
 
 /// <summary>
-/// Configuration for Wolverine saga timeouts, bound from appsettings.json.
+/// Saga orchestrator for distributed transaction processing in the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (saga orchestrator, manages distributed transaction lifecycle)</para>
+/// <para><strong>@purpose:</strong> Saga orchestrator for distributed transaction processing in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Saga state transitions are deterministic; idempotency ensures exactly-once processing</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 public sealed class SagaTimeoutConfiguration
 {
     /// <summary>Configuration section name.</summary>

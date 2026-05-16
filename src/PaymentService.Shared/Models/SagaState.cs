@@ -10,12 +10,9 @@ namespace PaymentService.Shared.Models;
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
 /// <para><strong>@purpose:</strong> Captures saga execution state for idempotency and error recovery</para>
-/// <para><strong>@module-type:</strong> UTILITY (persistence model)</para>
-/// <para><strong>@domain-concept:</strong> SagaState (execution track record)</para>
 /// <para><strong>@invariant:</strong> CorrelationId links to PaymentDocument</para>
 /// <para><strong>@invariant:</strong> CurrentStep consistent with CompletedSteps list</para>
 /// <para><strong>@invariant:</strong> CompletedAt only set when saga finishes</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>

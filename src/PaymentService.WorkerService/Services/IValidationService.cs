@@ -12,11 +12,18 @@
 // SEMANTIC_TAG: [BLOCK_SERVICE_INTERFACE] Export: IValidationService
 namespace PaymentService.Workers.Services;
 
+/// <summary>
+/// Service abstraction contract for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (service abstraction, dependency injection contract)</para>
+/// <para><strong>@purpose:</strong> Service abstraction contract for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All implementations must be thread-safe and respect cancellation tokens</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using PaymentService.Shared.Dtos;
 
-/// <summary>
-/// External payment validation service — checks business rules, compliance, and fraud.
-/// </summary>
 public interface IValidationService
 {
     /// <summary>
