@@ -1,3 +1,10 @@
+// FILE: StepHandlerTests.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
 // START_MODULE TESTS
 // START_BLOCK_TESTS StepHandlerTests
 // PURPOSE: Unit tests for ValidatePaymentHandler, ReserveFundsHandler, SettlePaymentHandler.

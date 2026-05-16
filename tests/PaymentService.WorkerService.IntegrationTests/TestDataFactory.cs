@@ -1,3 +1,10 @@
+// FILE: TestDataFactory.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
 // START_MODULE TESTS
 // START_BLOCK_TESTS TestDataFactory
 // PURPOSE: Centralized test data factory — produces PaymentRequestDto and related models

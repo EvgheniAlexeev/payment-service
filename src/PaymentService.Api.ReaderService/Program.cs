@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Program.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: ASP.NET Core bootstrapping and dependency injection for Reader API
+// SEMANTIC_TAG: [API_BOOTSTRAP, DI_REGISTRATION]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Program.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;

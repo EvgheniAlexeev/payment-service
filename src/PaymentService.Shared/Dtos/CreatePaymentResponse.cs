@@ -1,16 +1,22 @@
 // FILE: src/PaymentService.Shared/Dtos/CreatePaymentResponse.cs
-// VERSION: 1.0.0
+// VERSION: 2.0.0
+// MODULE: M-SHARED
+// PURPOSE: Response DTO for payment creation
+// SEMANTIC_TAG: [RESPONSE_DTO]
+// START_MODULE M_SHARED
 
 namespace PaymentService.Shared.Dtos;
 
 /// <summary>
-/// Response DTO for payment creation (202 Accepted pattern).
+/// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@purpose:</strong> Response model for successful payment creation (202 Accepted)</para>
 /// </summary>
-public record CreatePaymentResponse : IResponse
+public class CreatePaymentResponse
 {
-    /// <summary>The correlationId of the created payment.</summary>
-    public string CorrelationId { get; init; } = string.Empty;
+    /// <summary>Idempotency key for tracking async saga</summary>
+    public required string CorrelationId { get; init; }
 
-    /// <summary>Human-readable status message.</summary>
-    public string Message { get; init; } = "Payment accepted for processing";
+    public string? Message { get; init; }
+
+    public DateTime AcceptedAt { get; init; }
 }

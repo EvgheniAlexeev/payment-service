@@ -1,9 +1,16 @@
 // FILE: src/PaymentService.Api.WriterService/Validators/CreatePaymentValidator.cs
+using PaymentService.Shared.Commands;
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: FluentValidation rules
+// SEMANTIC_TAG: [VALIDATOR]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Validators/CreatePaymentValidator.cs
 // VERSION: 1.0.0
 
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using PaymentService.Api.WriterService.Models;
 
 namespace PaymentService.Api.WriterService.Validators;
 
@@ -40,12 +47,9 @@ public class CreatePaymentValidator : AbstractValidator<CreatePaymentRequest>
             .Length(3).WithMessage("Currency must be a 3-letter ISO 4217 code")
             .Must(IsValidCurrencyCode).WithMessage("Currency must contain only uppercase letters A-Z");
 
-        When(x => x.ValueDate.HasValue, () =>
-        {
-            RuleFor(x => x.ValueDate!.Value)
-                .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
-                .WithMessage("ValueDate cannot be in the past");
-        });
+        RuleFor(x => x.ValueDate)
+            .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
+            .WithMessage("ValueDate cannot be in the past");
     }
 
     private static bool IsValidCurrencyCode(string code) =>

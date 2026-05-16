@@ -1,3 +1,10 @@
+// FILE: SettlePaymentHandler.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Saga step handler logic
+// SEMANTIC_TAG: [SAGA_HANDLER, STEP]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_HANDLER SettlePaymentHandler
 // PURPOSE: Wolverine handler for the SettlePayment step.

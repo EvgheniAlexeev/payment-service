@@ -1,3 +1,10 @@
+// FILE: PaymentSaga.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Distributed transaction saga orchestration
+// SEMANTIC_TAG: [SAGA_ORCHESTRATION, STATE_MACHINE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_SAGA_ORCHESTRATOR PaymentSaga
 // PURPOSE: Wolverine saga orchestrator for distributed payment processing.

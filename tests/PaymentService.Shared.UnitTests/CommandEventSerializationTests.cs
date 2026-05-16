@@ -1,4 +1,11 @@
 // FILE: tests/PaymentService.Shared.UnitTests/CommandEventSerializationTests.cs
+// VERSION: 2.0.0
+// MODULE: M-TEST
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_TEST
+
+// FILE: tests/PaymentService.Shared.UnitTests/CommandEventSerializationTests.cs
 // VERSION: 1.0.0
 
 using System.Text.Json;

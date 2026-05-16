@@ -1,3 +1,10 @@
+// FILE: ILedgerService.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: External service dependency
+// SEMANTIC_TAG: [SERVICE_ABSTRACTION, DEPENDENCY]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_SERVICE ILedgerService
 // PURPOSE: External ledger service contract for fund reservation and settlement.

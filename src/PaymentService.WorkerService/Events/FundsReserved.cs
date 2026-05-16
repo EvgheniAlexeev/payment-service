@@ -1,3 +1,10 @@
+// FILE: FundsReserved.cs
+// VERSION: 2.0.0
+// MODULE: M-WORKER
+// PURPOSE: Saga internal or external event
+// SEMANTIC_TAG: [SAGA_EVENT, MESSAGE]
+// START_MODULE M_WORKER
+
 // START_MODULE M-WORKER
 // START_BLOCK_EVENT FundsReserved
 // PURPOSE: Wolverine event emitted after ReserveFunds step completes.

@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Persistence/MongoDB/IndexConfiguration.cs
+// VERSION: 2.0.0
+// MODULE: M-MONGO
+// PURPOSE: MongoDB collection indexing configuration
+// SEMANTIC_TAG: [INDEX_CONFIG, SCHEMA]
+// START_MODULE M_MONGO
+
+// FILE: src/PaymentService.Persistence/MongoDB/IndexConfiguration.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;

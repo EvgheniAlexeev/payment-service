@@ -1,5 +1,9 @@
 // FILE: src/PaymentService.Shared/Validators/PaymentRequestValidator.cs
-// VERSION: 1.0.0
+// VERSION: 2.0.0
+// MODULE: M-SHARED
+// PURPOSE: FluentValidation rules for PaymentRequestDto
+// SEMANTIC_TAG: [VALIDATOR, INPUT_VALIDATION]
+// START_MODULE M-SHARED-VALIDATORS
 
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -8,9 +12,19 @@ using PaymentService.Shared.Dtos;
 namespace PaymentService.Shared.Validators;
 
 /// <summary>
-/// BLOCK_VALIDATE PaymentRequestDto validation rules.
-/// Enforces: non-empty CorrelationId, valid amount, valid currency.
+/// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@purpose:</strong> FluentValidation rules for PaymentRequestDto input validation</para>
+/// <para><strong>@module-type:</strong> UTILITY (business rules engine)</para>
+/// <para><strong>@depends:</strong> FluentValidation, PaymentRequestDto</para>
+/// <para><strong>@domain-concept:</strong> PaymentRequestValidator (specification pattern)</para>
+/// <para><strong>@invariant:</strong> All rules executed in order, short-circuit on first failure</para>
+/// <para><strong>@stability:</strong> STABLE</para>
+/// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
+/// <remarks>
+/// <para><strong>Rules:</strong> CorrelationId, Account IDs, Amount bounds, Currency ISO code, ValueDate</para>
+/// <para><strong>Semantic Logging:</strong> BLOCK_VALIDATE markers for observability</para>
+/// </remarks>
 public class PaymentRequestValidator : AbstractValidator<PaymentRequestDto>
 {
     private readonly ILogger<PaymentRequestValidator> _logger;
@@ -43,12 +57,9 @@ public class PaymentRequestValidator : AbstractValidator<PaymentRequestDto>
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description must not exceed 500 characters");
 
-        When(x => x.ValueDate.HasValue, () =>
-        {
-            RuleFor(x => x.ValueDate!.Value)
-                .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
-                .WithMessage("ValueDate cannot be in the past");
-        });
+        RuleFor(x => x.ValueDate)
+            .Must(d => !d.HasValue || d.Value >= DateTime.UtcNow.Date)
+            .WithMessage("ValueDate cannot be in the past");
     }
 
     private static bool IsValidCurrencyCode(string code)
@@ -58,11 +69,16 @@ public class PaymentRequestValidator : AbstractValidator<PaymentRequestDto>
     }
 
     /// <summary>
-    /// Validate with semantic log markers.
+    /// <para><strong>@method:</strong> ValidateAsync</para>
+    /// <para><strong>@purpose:</strong> Validate with semantic BLOCK_VALIDATE markers</para>
+    /// <para><strong>@param instance:</strong> PaymentRequestDto to validate</para>
+    /// <para><strong>@return:</strong> FluentValidation.Results.ValidationResult</para>
+    /// <para><strong>@idempotent:</strong> YES (no side effects)</para>
     /// </summary>
     public new async Task<FluentValidation.Results.ValidationResult> ValidateAsync(
         PaymentRequestDto instance, CancellationToken ct = default)
     {
+        // START_BLOCK_VALIDATE
         _logger.LogInformation(
             "[PaymentService.Shared][PaymentRequestValidator][BLOCK_VALIDATE] " +
             "Validating payment request {CorrelationId}", instance.CorrelationId);
@@ -82,6 +98,7 @@ public class PaymentRequestValidator : AbstractValidator<PaymentRequestDto>
                 "Payment validation failed {CorrelationId} {@Errors}",
                 instance.CorrelationId, result.Errors);
         }
+        // END_BLOCK_VALIDATE
 
         return result;
     }

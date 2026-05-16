@@ -1,4 +1,11 @@
 // FILE: tests/PaymentService.Shared.UnitTests/DtoSerializationTests.cs
+// VERSION: 2.0.0
+// MODULE: M-TEST
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_TEST
+
+// FILE: tests/PaymentService.Shared.UnitTests/DtoSerializationTests.cs
 // VERSION: 1.0.0
 
 using System.Text.Json;
@@ -86,10 +93,13 @@ public class DtoSerializationTests
     [Fact]
     public void CreatePaymentResponse_DefaultsHaveCorrectMessage()
     {
-        var response = new Shared.Dtos.CreatePaymentResponse();
+        var response = new Shared.Dtos.CreatePaymentResponse 
+        { 
+            CorrelationId = "test-123"
+        };
 
-        response.CorrelationId.Should().BeEmpty();
-        response.Message.Should().Be("Payment accepted for processing");
+        response.CorrelationId.Should().Be("test-123");
+        response.Message.Should().BeNull();
     }
 
     [Fact]

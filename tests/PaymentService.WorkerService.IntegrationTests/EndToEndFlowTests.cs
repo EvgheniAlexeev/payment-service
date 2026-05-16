@@ -1,3 +1,10 @@
+// FILE: EndToEndFlowTests.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
 // START_MODULE TESTS
 // START_BLOCK_TESTS EndToEndFlowTests
 // PURPOSE: Complete end-to-end workflow tests combining sagas, handlers, DLQ, and metrics.

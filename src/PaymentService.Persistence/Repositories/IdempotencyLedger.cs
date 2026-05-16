@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Persistence/Repositories/IdempotencyLedger.cs
+// VERSION: 2.0.0
+// MODULE: M-MONGO
+// PURPOSE: MongoDB repository pattern implementation
+// SEMANTIC_TAG: [REPOSITORY, DATA_ACCESS]
+// START_MODULE M_MONGO
+
+// FILE: src/PaymentService.Persistence/Repositories/IdempotencyLedger.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;
@@ -46,7 +53,7 @@ public class IdempotencyLedger : IIdempotencyLedger
 
             return true; // Successfully marked
         }
-        catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+        catch (MongoWriteException ex) when (ex.Message.Contains("E11000"))
         {
             _logger.LogInformation(
                 "[PaymentService.Persistence][IdempotencyLedger][BLOCK_IDEMPOTENCY_CHECK] " +

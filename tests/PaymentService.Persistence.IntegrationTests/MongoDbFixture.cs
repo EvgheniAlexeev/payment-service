@@ -1,4 +1,11 @@
 // FILE: tests/PaymentService.Persistence.IntegrationTests/MongoDbFixture.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
+// FILE: tests/PaymentService.Persistence.IntegrationTests/MongoDbFixture.cs
 // VERSION: 1.0.0
 
 using FakeItEasy;
@@ -20,7 +27,7 @@ public class MongoDbFixture : IAsyncLifetime
 
     public MongoDbContext? Context { get; private set; }
     public IMongoDatabase? Database { get; private set; }
-    public ILogger<IndexConfiguration>? Logger { get; private set; }
+    public ILogger<MongoDbFixture>? Logger { get; private set; }
 
     public MongoDbFixture()
     {
@@ -29,7 +36,7 @@ public class MongoDbFixture : IAsyncLifetime
             .WithCleanUp(true)
             .Build();
 
-        Logger = A.Fake<ILogger<IndexConfiguration>>();
+        Logger = A.Fake<ILogger<MongoDbFixture>>();
     }
 
     public async Task InitializeAsync()

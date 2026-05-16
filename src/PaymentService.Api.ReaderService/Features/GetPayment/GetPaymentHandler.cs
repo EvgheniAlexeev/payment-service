@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/GetPayment/GetPaymentHandler.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: Business logic handler for query operations
+// SEMANTIC_TAG: [HANDLER, QUERY_PROCESSOR]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Features/GetPayment/GetPaymentHandler.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;

@@ -1,10 +1,18 @@
 // FILE: tests/.../WriterService.IntegrationTests/PaymentWriterSagaPublishingTests.cs
+// VERSION: 2.0.0
+// MODULE: M-INTEGRATION
+// PURPOSE: Test specification
+// SEMANTIC_TAG: [TEST]
+// START_MODULE M_INTEGRATION
+
+// FILE: tests/.../WriterService.IntegrationTests/PaymentWriterSagaPublishingTests.cs
 // VERSION: 1.0.0
 
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using PaymentService.Api.WriterService.Models;
+using PaymentService.Shared.Commands;
+using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Commands;
 
 namespace PaymentService.Api.WriterService.IntegrationTests;

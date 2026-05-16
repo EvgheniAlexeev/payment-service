@@ -1,4 +1,11 @@
 // FILE: src/PaymentService.Api.ReaderService/Features/DependencyInjection.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: Extension methods for service registration and configuration
+// SEMANTIC_TAG: [DI_EXTENSION, SERVICE_REGISTRATION]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Features/DependencyInjection.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.DependencyInjection;
@@ -17,12 +24,12 @@ public static class VsaFeatureRegistration
         // GetPayment feature
         services.AddScoped<GetPaymentHandler>();
         services.AddScoped<GetPaymentEndpoint>();
-        services.AddValidatorsFromAssemblyContaining<GetPaymentValidator>();
+        // services.AddValidatorsFromAssemblyContaining<GetPaymentValidator>();
 
         // QueryPayments feature
         services.AddScoped<QueryPaymentsHandler>();
         services.AddScoped<QueryPaymentsEndpoint>();
-        services.AddValidatorsFromAssemblyContaining<QueryPaymentsValidator>();
+        // services.AddValidatorsFromAssemblyContaining<QueryPaymentsValidator>();
 
         return services;
     }

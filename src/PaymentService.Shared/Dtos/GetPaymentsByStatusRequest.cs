@@ -1,19 +1,36 @@
 // FILE: src/PaymentService.Shared/Dtos/GetPaymentsByStatusRequest.cs
-// VERSION: 1.0.0
+// VERSION: 2.0.0
+// MODULE: M-SHARED
+// PURPOSE: Paginated payment query request DTO
+// SEMANTIC_TAG: [QUERY_DTO, PAGINATION]
+// START_MODULE M-SHARED-DTOS
 
 namespace PaymentService.Shared.Dtos;
 
 /// <summary>
-/// Request to query payments by status with optional pagination.
+/// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@purpose:</strong> Query DTO for listing payments by status with pagination</para>
+/// <para><strong>@module-type:</strong> UTILITY (pure data contract)</para>
+/// <para><strong>@depends:</strong> IRequest interface</para>
+/// <para><strong>@domain-concept:</strong> GetPaymentsByStatusRequest (query command)</para>
+/// <para><strong>@invariant:</strong> Status must match valid payment states</para>
+/// <para><strong>@invariant:</strong> Page > 0 (1-based)</para>
+/// <para><strong>@invariant:</strong> PageSize > 0 and ≤ 1000</para>
+/// <para><strong>@stability:</strong> STABLE</para>
+/// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
+/// <remarks>
+/// <para><strong>Usage:</strong> GET /api/payments/by-status?status=Settled&page=2&pageSize=50</para>
+/// <para><strong>Pagination:</strong> Offset = (Page - 1) * PageSize</para>
+/// </remarks>
 public record GetPaymentsByStatusRequest : IRequest
 {
-    /// <summary>Status filter (e.g., Pending, Settled, Failed).</summary>
+    /// <summary><para><strong>@property:</strong> Status</para><para>Filter criterion: {Pending, Validating, Enriching, Settling, Settled, Failed}</para></summary>
     public string Status { get; init; } = string.Empty;
 
-    /// <summary>Page number (1-based).</summary>
+    /// <summary><para><strong>@property:</strong> Page</para><para>1-based page number for cursor-free pagination</para></summary>
     public int Page { get; init; } = 1;
 
-    /// <summary>Page size.</summary>
+    /// <summary><para><strong>@property:</strong> PageSize</para><para>Rows per page (max 1000)</para></summary>
     public int PageSize { get; init; } = 20;
 }

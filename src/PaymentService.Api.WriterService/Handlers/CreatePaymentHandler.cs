@@ -1,9 +1,15 @@
 // FILE: src/PaymentService.Api.WriterService/Handlers/CreatePaymentHandler.cs
+// VERSION: 2.0.0
+// MODULE: M-WRITER
+// PURPOSE: Business logic handler for command operations
+// SEMANTIC_TAG: [HANDLER, COMMAND_PROCESSOR]
+// START_MODULE M_WRITER
+
+// FILE: src/PaymentService.Api.WriterService/Handlers/CreatePaymentHandler.cs
 // VERSION: 1.0.0
 
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using PaymentService.Api.WriterService.Models;
 using PaymentService.Api.WriterService.Validators;
 using PaymentService.Persistence.Repositories;
 using PaymentService.Shared;
@@ -14,9 +20,9 @@ using PaymentService.Shared.Models;
 namespace PaymentService.Api.WriterService.Handlers;
 
 /// <summary>
-/// BLOCK_HANDLER_CREATE — Payment creation handler.
-/// Validates input, persists the initial payment document, publishes saga command.
-/// Returns 202 Accepted with correlationId for async processing.
+/// <para><strong>@purpose:</strong> Payment creation handler with [BLOCK_HANDLER_CREATE] markers</para>
+/// <para><strong>@contract:</strong> M-WRITER (command handler, writes payment document + publishes saga)</para>
+/// <para><strong>@invariant:</strong> Idempotent: duplicate CorrelationId returns cached response</para>
 /// </summary>
 public class CreatePaymentHandler : ICreatePaymentHandler
 {

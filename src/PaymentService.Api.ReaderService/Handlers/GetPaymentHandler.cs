@@ -1,10 +1,17 @@
 // FILE: src/PaymentService.Api.ReaderService/Handlers/GetPaymentHandler.cs
+// VERSION: 2.0.0
+// MODULE: M-READER
+// PURPOSE: Business logic handler for query operations
+// SEMANTIC_TAG: [HANDLER, QUERY_PROCESSOR]
+// START_MODULE M_READER
+
+// FILE: src/PaymentService.Api.ReaderService/Handlers/GetPaymentHandler.cs
 // VERSION: 1.0.0
 
 using Microsoft.Extensions.Logging;
-using PaymentService.Api.ReaderService.Models;
 using PaymentService.Persistence.Repositories;
 using PaymentService.Shared;
+using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Dtos;
 
 namespace PaymentService.Api.ReaderService.Handlers;
@@ -33,24 +40,24 @@ public class GetPaymentHandler : IGetPaymentHandler
         {
             _logger.LogInformation(
                 "[PaymentService.Api.ReaderService][GetPaymentHandler][BLOCK_HANDLER_GET] " +
-                "Fetching payment {CorrelationId}", request.CorrelationId);
+                "Fetching payment {PaymentId}", request.PaymentId);
 
-            var payment = await _repository.GetByCorrelationIdAsync(request.CorrelationId, ct);
+            var payment = await _repository.GetByCorrelationIdAsync(request.PaymentId, ct);
 
             if (payment == null)
             {
                 _logger.LogWarning(
                     "[PaymentService.Api.ReaderService][GetPaymentHandler][BLOCK_HANDLER_GET] " +
-                    "Payment not found {CorrelationId}", request.CorrelationId);
+                    "Payment not found {PaymentId}", request.PaymentId);
                 return Result<PaymentStatusDto>.NotFound(
-                    $"Payment not found: {request.CorrelationId}");
+                    $"Payment not found: {request.PaymentId}");
             }
 
             var dto = MapToStatusDto(payment);
 
             _logger.LogInformation(
                 "[PaymentService.Api.ReaderService][GetPaymentHandler][BLOCK_HANDLER_GET] " +
-                "Payment retrieved successfully {CorrelationId}", request.CorrelationId);
+                "Payment retrieved successfully {PaymentId}", request.PaymentId);
 
             return Result<PaymentStatusDto>.Success(dto);
         }
@@ -58,7 +65,7 @@ public class GetPaymentHandler : IGetPaymentHandler
         {
             _logger.LogError(ex,
                 "[PaymentService.Api.ReaderService][GetPaymentHandler][BLOCK_HANDLER_GET] " +
-                "Error fetching payment {CorrelationId}", request.CorrelationId);
+                "Error fetching payment {PaymentId}", request.PaymentId);
             return Result<PaymentStatusDto>.Failure("Internal server error");
         }
         // END_BLOCK_HANDLER_GET
@@ -86,7 +93,7 @@ public class GetPaymentHandler : IGetPaymentHandler
             var response = new PagedPaymentStatusResponse
             {
                 Items = payments.Select(MapToStatusDto).ToList(),
-                TotalCount = payments.Count, // Simplified; production would use CountDocumentsAsync
+                Total = payments.Count, // Simplified; production would use CountDocumentsAsync
                 Page = request.Page,
                 PageSize = pageSize
             };

@@ -1,22 +1,32 @@
 // FILE: src/PaymentService.Shared/Commands/PaymentCommand.cs
-// VERSION: 1.0.0
+// VERSION: 2.0.0
+// MODULE: M-SHARED
+// PURPOSE: Payment command contract for saga orchestration
+// SEMANTIC_TAG: [PAYMENT_COMMAND, WOLVERINE_MESSAGE]
+// START_MODULE M-SHARED-COMMANDS
+// SEMANTIC_PURPOSE: PaymentCommand contract (Wolverine message) for initiating payment saga
 
 using PaymentService.Shared.Dtos;
 
 namespace PaymentService.Shared.Commands;
 
 /// <summary>
-/// BLOCK_PAYMENT_COMMAND — Wolverine command to initiate payment saga.
-/// Published by API Writer after persisting the initial payment document.
+/// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@purpose:</strong> Wolverine command to initiate payment processing saga</para>
+/// <para><strong>@invariant:</strong> IdempotencyKey and CorrelationId must be non-empty</para>
+/// <para><strong>@invariant:</strong> {CorrelationId}:{MessageVersion} unique constraint in MongoDB</para>
+/// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
+// START_BLOCK_PAYMENT_COMMAND
 public record PaymentCommand : ICommand
 {
-    /// <summary>Idempotency key for deduplication.</summary>
     public string IdempotencyKey { get; init; } = string.Empty;
 
-    /// <summary>Correlation ID of the payment.</summary>
     public string CorrelationId { get; init; } = string.Empty;
 
-    /// <summary>Full payment request payload.</summary>
-    public PaymentRequestDto Request { get; init; } = new();
+    public int MessageVersion { get; init; } = 1;
+
+    public PaymentRequestDto PaymentRequest { get; init; } = new();
+
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
