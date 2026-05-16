@@ -57,12 +57,9 @@ public class PaymentRequestValidator : AbstractValidator<PaymentRequestDto>
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description must not exceed 500 characters");
 
-        When(x => x.ValueDate.HasValue, () =>
-        {
-            RuleFor(x => x.ValueDate!.Value)
-                .Must(d => d >= DateTime.UtcNow.Date.AddDays(-1))
-                .WithMessage("ValueDate cannot be in the past");
-        });
+        RuleFor(x => x.ValueDate)
+            .Must(d => !d.HasValue || d.Value >= DateTime.UtcNow.Date)
+            .WithMessage("ValueDate cannot be in the past");
     }
 
     private static bool IsValidCurrencyCode(string code)
