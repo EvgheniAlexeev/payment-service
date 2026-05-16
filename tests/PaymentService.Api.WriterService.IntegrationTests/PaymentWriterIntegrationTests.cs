@@ -11,7 +11,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using PaymentService.Api.WriterService.Models;
+using PaymentService.Shared.Commands;
+using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Models;
 
 namespace PaymentService.Api.WriterService.IntegrationTests;
