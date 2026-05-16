@@ -22,11 +22,7 @@ namespace PaymentService.Shared.Models;
 /// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
-/// <remarks>
-/// <para><strong>Lifecycle:</strong> Created on payment submission, mutated by saga steps, indexed by CorrelationId</para>
-/// <para><strong>TTL:</strong> MongoDB TTL index on CreatedAt (7 days) for auto-cleanup</para>
-/// <para><strong>Idempotency:</strong> SagaState + ModifiedAt ensure no duplicate step execution</para>
-/// </remarks>
+
 public record PaymentDocument
 {
     /// <summary><para><strong>@property:</strong> Id</para><para>MongoDB internal identifier (_id)</para></summary>
