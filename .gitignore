@@ -56,6 +56,8 @@ _ReSharper*/
 TestResults/
 *.trx
 *.coverage
+.msCoverageSourceRootsMapping*
+CoverletSourceRootsMapping*
 
 # Build Folders
 artifacts/
@@ -69,14 +71,27 @@ publish/
 # macOS
 .DS_Store
 
+# Windows
+Thumbs.db
+
 # Temp files
 *.tmp
 *.temp
 *.swp
 *.swo
 *~
+*.lscache
+*.user.props
+*.AssemblyInfo.cs.bak
+*.nuget.dgspec.json.bak
+*.nuget.g.props.bak
+*.assets.json.bak
 
 # IDE specific
 .vscode/
 launch.json
 tasks.json
+
+# OpenClaw / GRACE specific
+docs/doxygen-skeletons.deprecated/
+*.grace-lock
