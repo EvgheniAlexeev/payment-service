@@ -12,6 +12,18 @@ namespace PaymentService.Api.WriterService.Controllers;
 /// Route: api/payment
 /// Uses 202 Accepted pattern for async saga processing.
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-PAYMENT-WRITER</para>
+/// <para><strong>@purpose:</strong> Provides HTTP command endpoint for payment submission with async saga initiation</para>
+/// <para><strong>@module-type:</strong> ENTRY_POINT</para>
+/// <para><strong>@depends:</strong> M-PAYMENT-SHARED, M-PAYMENT-PERSIST</para>
+/// <para><strong>@domain-concept:</strong> PaymentCommandController</para>
+/// <para><strong>@invariant:</strong> Response latency p99 ≤ 2s (202 Accepted returned immediately)</para>
+/// <para><strong>@invariant:</strong> All requests validated before persistence</para>
+/// <para><strong>@invariant:</strong> Idempotency key prevents duplicate processing</para>
+/// <para><strong>@stability:</strong> STABLE</para>
+/// <para><strong>@verification-ref:</strong> V-M-WRITER-PAY</para>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 public class PaymentCommandController : ControllerBase
@@ -32,6 +44,21 @@ public class PaymentCommandController : ControllerBase
     /// Returns 400 on validation failure.
     /// Returns 409 on duplicate correlationId.
     /// </summary>
+    /// <remarks>
+    /// <para><strong>@contract-action:</strong> CreatePayment</para>
+    /// <para><strong>@param request:</strong> CreatePaymentRequest with payment details</para>
+    /// <para><strong>@return:</strong> CreatePaymentResponse with correlationId (202 Accepted)</para>
+    /// <para><strong>@throws:</strong> ValidationException — request validation failed; ConflictException — idempotency key already processed</para>
+    /// <para><strong>@log-event:</strong> writer.controller.create-payment-start {correlationId}</para>
+    /// <para><strong>@log-event:</strong> writer.controller.create-payment-accepted {correlationId}</para>
+    /// <para><strong>@log-event:</strong> writer.controller.create-payment-error {correlationId} {error}</para>
+    /// <para><strong>@trace-span:</strong> writer.create-payment</para>
+    /// <para><strong>@pre-condition:</strong> request != null</para>
+    /// <para><strong>@post-condition:</strong> response.StatusCode == 202</para>
+    /// <para><strong>@complexity:</strong> O(1) (direct write)</para>
+    /// <para><strong>@idempotent:</strong> YES (via idempotency key)</para>
+    /// <para><strong>@pure:</strong> NO (I/O: persistence + event publishing)</para>
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(CreatePaymentResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
