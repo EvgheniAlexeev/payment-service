@@ -22,11 +22,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download grace-lint-phase3.py
-        run: |
-          mkdir -p grace-tooling
-          curl -sL https://raw.githubusercontent.com/EvgheniAlexeev/grace-tooling/main/grace-lint-phase3.py -o grace-tooling/grace-lint-phase3.py
-          chmod +x grace-tooling/grace-lint-phase3.py
+      - name: Use grace-lint-phase3.py from repo
+        run: chmod +x grace-tooling/grace-lint-phase3.py
 
       - name: Set up Python
         uses: actions/setup-python@v5
