@@ -28,3 +28,4 @@ public record PaymentSettled : IEvent
 
     public string Status { get; init; } = "Settled";
 }
+// END_BLOCK_PAYMENT_SETTLED

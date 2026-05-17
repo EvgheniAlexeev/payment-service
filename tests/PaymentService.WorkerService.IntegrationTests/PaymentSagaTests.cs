@@ -43,14 +43,14 @@ public class PaymentSagaTests
         var result = saga.Handle(command);
 
         result.Should().BeOfType<ValidatePaymentCommand>();
-        var validateCmd = (ValidatePaymentCommand)result;
+        var validateCmd = (ValidatePaymentCommand)result!;
         validateCmd.CorrelationId.Should().Be("SAGA-START-001");
         validateCmd.PaymentRequest.Should().BeEquivalentTo(request);
 
         state.CorrelationId.Should().Be("SAGA-START-001");
         state.Status.Should().Be("Validating");
         state.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
-        state.PaymentRequest.Should().BeEquivalentTo(request);
+        state.PaymentRequest!.Should().BeEquivalentTo(request);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class PaymentSagaTests
         state.Id.Should().Be("SAGA-START-002");
         state.Status.Should().Be("Validating");
         state.PaymentRequest!.Currency.Should().Be("EUR");
-        state.PaymentRequest.Amount.Should().Be(250m);
+        state.PaymentRequest!.Amount.Should().Be(250m);
         state.ErrorReason.Should().BeNull();
         state.CompletedAt.Should().BeNull();
     }
@@ -108,10 +108,10 @@ public class PaymentSagaTests
         var result = saga.Handle(successEvent);
 
         result.Should().BeOfType<ReserveFundsCommand>();
-        var reserveCmd = (ReserveFundsCommand)result;
+        var reserveCmd = (ReserveFundsCommand)result!;
         reserveCmd.CorrelationId.Should().Be("SAGA-VALID-OK");
         reserveCmd.Amount.Should().Be(state.PaymentRequest!.Amount);
-        reserveCmd.SenderAccount.Should().Be(state.PaymentRequest.SenderAccount);
+        reserveCmd.SenderAccount.Should().Be(state.PaymentRequest!.SenderAccount);
 
         state.Status.Should().Be("ReservingFunds");
     }
@@ -133,7 +133,7 @@ public class PaymentSagaTests
         var result = saga.Handle(failEvent);
 
         result.Should().BeOfType<PaymentFailed>();
-        var failed = (PaymentFailed)result;
+        var failed = (PaymentFailed)result!;
         failed.CorrelationId.Should().Be("SAGA-VALID-FAIL");
         failed.FailedStep.Should().Be("Validate");
         failed.ErrorCode.Should().Be("VALIDATION_FAILED");
@@ -163,7 +163,7 @@ public class PaymentSagaTests
 
         var result = saga.Handle(failEvent);
 
-        var failed = (PaymentFailed)result;
+        var failed = (PaymentFailed)result!;
         failed.ErrorMessage.Should().Be("Validation failed");
         dlq.PublishedEvents.Should().ContainSingle();
     }
@@ -198,7 +198,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-OK");
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
 
         var successEvent = new FundsReserved
         {
@@ -212,7 +212,7 @@ public class PaymentSagaTests
         var result = saga.Handle(successEvent);
 
         result.Should().BeOfType<SettlePaymentCommand>();
-        var settleCmd = (SettlePaymentCommand)result;
+        var settleCmd = (SettlePaymentCommand)result!;
         settleCmd.CorrelationId.Should().Be("SAGA-RSV-OK");
         settleCmd.ReservationId.Should().Be("RSV-ABCDEF123456");
         settleCmd.Amount.Should().Be(500m);
@@ -227,7 +227,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-FAIL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
 
         var failEvent = new FundsReserved
         {
@@ -240,7 +240,7 @@ public class PaymentSagaTests
         var result = saga.Handle(failEvent);
 
         result.Should().BeOfType<PaymentFailed>();
-        var failed = (PaymentFailed)result;
+        var failed = (PaymentFailed)result!;
         failed.FailedStep.Should().Be("ReserveFunds");
         failed.ErrorCode.Should().Be("RESERVATION_FAILED");
 
@@ -254,7 +254,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-NULL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
 
         var failEvent = new FundsReserved
         {
@@ -264,7 +264,7 @@ public class PaymentSagaTests
         };
 
         var result = saga.Handle(failEvent);
-        var failed = (PaymentFailed)result;
+        var failed = (PaymentFailed)result!;
         failed.ErrorMessage.Should().Be("Fund reservation failed");
     }
 
@@ -275,7 +275,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-OK");
         state.Status = "Settling";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
         state.ReservationId = "RSV-SAGA-STL";
 
         var successEvent = new PaymentSettledInternal
@@ -289,7 +289,7 @@ public class PaymentSagaTests
         var result = saga.Handle(successEvent);
 
         result.Should().BeOfType<PaymentSettled>();
-        var settled = (PaymentSettled)result;
+        var settled = (PaymentSettled)result!;
         settled.CorrelationId.Should().Be("SAGA-STL-OK");
         settled.SettlementId.Should().Be("STL-FINAL-12345");
         settled.Status.Should().Be("Settled");
@@ -304,7 +304,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-FAIL", dlq: dlq);
         state.Status = "Settling";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
         state.ReservationId = "RSV-STL-FAIL";
 
         var failEvent = new PaymentSettledInternal
@@ -318,7 +318,7 @@ public class PaymentSagaTests
         var result = saga.Handle(failEvent);
 
         result.Should().BeOfType<PaymentFailed>();
-        var failed = (PaymentFailed)result;
+        var failed = (PaymentFailed)result!;
         failed.FailedStep.Should().Be("Settle");
         failed.ErrorCode.Should().Be("SETTLEMENT_FAILED");
 
@@ -368,7 +368,7 @@ public class PaymentSagaTests
         };
         var step3 = saga.Handle(reserved);
         step3.Should().BeOfType<SettlePaymentCommand>();
-        var settleCmd = (SettlePaymentCommand)step3;
+        var settleCmd = (SettlePaymentCommand)step3!;
         settleCmd.ReservationId.Should().Be("RSV-FULL-001");
         state.Status.Should().Be("Settling");
 
@@ -583,7 +583,7 @@ public class PaymentSagaTests
         {
             saga.State.Id = correlationId;
             saga.State.CorrelationId = correlationId;
-            saga.State.PaymentPaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
+            saga.State.PaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
             saga.State.Status = "Validating";
             saga.State.CreatedAt = DateTime.UtcNow;
         }

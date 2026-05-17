@@ -18,7 +18,7 @@ namespace PaymentService.Shared.Dtos;
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>
-/// <para><strong>Usage:</strong> GET /api/payments/by-status?status=Settled&page=2&pageSize=50</para>
+/// <para><strong>Usage:</strong> GET /api/payments/by-status?status=Settled&amp;page=2&amp;pageSize=50</para>
 /// <para><strong>Pagination:</strong> Offset = (Page - 1) * PageSize</para>
 /// </remarks>
 public record GetPaymentsByStatusRequest : IRequest

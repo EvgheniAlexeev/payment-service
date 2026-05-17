@@ -14,6 +14,7 @@ namespace PaymentService.Workers.IntegrationTests;
 
 using PaymentService.Workers.Commands;
 using PaymentService.Workers.Events;
+using PaymentService.Workers.Sagas;
 using Microsoft.Extensions.Logging;
 using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Events;

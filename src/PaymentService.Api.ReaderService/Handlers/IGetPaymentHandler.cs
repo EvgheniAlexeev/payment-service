@@ -10,7 +10,6 @@
 
 using PaymentService.Shared;
 using PaymentService.Shared.Dtos;
-using PaymentService.Shared.Dtos;
 
 namespace PaymentService.Api.ReaderService.Handlers;
 

@@ -29,3 +29,4 @@ public record PaymentEnriched : IEvent
 
     public DateTime EnrichedAt { get; init; }
 }
+// END_BLOCK_PAYMENT_ENRICHED

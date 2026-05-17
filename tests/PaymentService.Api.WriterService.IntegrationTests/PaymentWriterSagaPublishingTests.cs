@@ -13,7 +13,6 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using PaymentService.Shared.Commands;
 using PaymentService.Shared.Dtos;
-using PaymentService.Shared.Commands;
 
 namespace PaymentService.Api.WriterService.IntegrationTests;
 

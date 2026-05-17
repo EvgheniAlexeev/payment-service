@@ -95,7 +95,7 @@ public class CreatePaymentHandler : ICreatePaymentHandler
                     Amount = request.Amount,
                     Currency = request.Currency,
                     ValueDate = request.ValueDate,
-                    Description = request.Description
+                    Description = request.Description ?? string.Empty
                 },
                 Status = "Pending",
                 SagaState = "Validating",
