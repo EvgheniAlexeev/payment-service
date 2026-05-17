@@ -108,11 +108,7 @@ jobs:
           # Parse doxygen results
           try:
               with open('doxygen-report.json') as f:
-                  raw = f.read().strip()
-                  if not raw:
-                      print('::warning::Doxygen report is empty — check may have failed before writing')
-                  else:
-                      report = json.loads(raw)
+                  report = json.load(f)
               files_scanned = report.get('files_scanned', 0)
               tags_checked = report.get('tags_checked', 0)
               total = report.get('total_violations', 0)
