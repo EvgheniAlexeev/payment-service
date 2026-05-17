@@ -274,7 +274,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "E2E-LARGE",
-            Request = req,
+            PaymentRequest = req,
             IdempotencyKey = "ID-E2E-LG",
         });
         state.Status.Should().Be("Validating");

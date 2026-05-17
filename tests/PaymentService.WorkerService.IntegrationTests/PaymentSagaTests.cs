@@ -481,7 +481,7 @@ public class PaymentSagaTests
         saga1.Handle(new PaymentCommand
         {
             CorrelationId = "MULTI-SAGA-1",
-            Request = request1,
+            PaymentRequest = request1,
             IdempotencyKey = "IDEM-M1",
         });
         saga1.Handle(new PaymentValidated { CorrelationId = "MULTI-SAGA-1", IsValid = true });
@@ -504,7 +504,7 @@ public class PaymentSagaTests
         saga2.Handle(new PaymentCommand
         {
             CorrelationId = "MULTI-SAGA-2",
-            Request = request2,
+            PaymentRequest = request2,
             IdempotencyKey = "IDEM-M2",
         });
         saga2.Handle(new PaymentValidated

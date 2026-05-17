@@ -126,7 +126,7 @@ public class PaymentSagaMetricsTests
         for (int i = 0; i < 100; i++)
         {
             _metrics.IncrementSagaStarted();
-            var step = i % 3 switch
+            var step = (i % 3) switch
             {
                 0 => "Validate",
                 1 => "ReserveFunds",

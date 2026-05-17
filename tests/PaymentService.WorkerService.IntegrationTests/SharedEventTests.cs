@@ -13,6 +13,7 @@
 // SEMANTIC_TAG: [BLOCK_TEST_SHARED] Shared event and model tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Shared.Commands;
 using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Events;
 
@@ -210,12 +211,12 @@ public class PaymentCommandTests
         var command = new PaymentCommand
         {
             CorrelationId = request.CorrelationId,
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "idem-key-12345",
         };
 
         command.CorrelationId.Should().Be(request.CorrelationId);
-        command.Request.Should().BeEquivalentTo(request);
+        command.PaymentRequest.Should().BeEquivalentTo(request);
         command.IdempotencyKey.Should().Be("idem-key-12345");
     }
 
@@ -224,7 +225,7 @@ public class PaymentCommandTests
     {
         var command = new PaymentCommand();
         command.CorrelationId.Should().BeEmpty();
-        command.Request.Should().BeNull();
+        command.PaymentRequest.Should().BeNull();
         command.IdempotencyKey.Should().BeEmpty();
     }
 
