@@ -174,6 +174,37 @@ def check_idempotent(tag_value, content, filepath, modules=None):
     return ("pass", None)
 
 
+def check_verification_ref(tag_value, content, filepath, refs):
+    """@verification-ref: check the ref exists in verification-plan.xml."""
+    ref = tag_value.strip()
+    if not ref:
+        return ("skip", "Empty @verification-ref")
+    if ref in refs:
+        return ("pass", None)
+    for r in refs:
+        if ref in r or r in ref:
+            return ("pass", f"Partial match: {ref} → {r}")
+    return ("warn", f"Verification ref not found in verification-plan.xml: {ref}")
+
+
+def check_contract(tag_value, content, filepath, modules):
+    """@contract: check module ID exists in knowledge-graph.xml."""
+    module = tag_value.strip()
+    module = re.sub(r'\s*\(.*?\)', '', module).strip()
+    if not module:
+        return ("skip", "Empty @contract")
+    def core(s):
+        return re.sub(r'^M[_-]*(?:IDENTITY[_-]*)?', '', s).lower()
+    mod_core = core(module)
+    if not mod_core:
+        return ("skip", f"Empty core: {module}")
+    if module in modules:
+        return ("pass", None)
+    for m in modules:
+        if core(m) == mod_core:
+            return ("pass", f"Matched: {module} → {m}")
+    return ("warn", f"Module not found in knowledge-graph.xml: {module}")
+
 
 # ────────────────────── Main ──────────────────────
 
