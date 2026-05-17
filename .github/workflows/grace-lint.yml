@@ -39,8 +39,16 @@ jobs:
       - name: dotnet build
         run: dotnet build --no-restore --verbosity minimal
 
-      - name: dotnet test
-        run: dotnet test --no-build --verbosity minimal --logger "trx"
+      - name: dotnet test (unit)
+        run: >
+          dotnet test --no-build --verbosity minimal --logger "trx"
+          --filter "FullyQualifiedName!~IntegrationTests"
+
+      - name: dotnet test (integration — may require Docker)
+        run: >
+          dotnet test --no-build --verbosity minimal --logger "trx"
+          --filter "FullyQualifiedName~IntegrationTests"
+        continue-on-error: true
 
   lint:
     name: GRACE Lint & Doxygen Check
