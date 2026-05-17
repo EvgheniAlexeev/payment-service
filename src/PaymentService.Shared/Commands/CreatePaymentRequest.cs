@@ -16,23 +16,23 @@ namespace PaymentService.Shared.Commands;
 public class CreatePaymentRequest
 {
     /// <summary><para><strong>@property:</strong> CorrelationId</para><para>Unique idempotency key</para></summary>
-    public required string CorrelationId { get; init; }
+    public required string CorrelationId { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> SenderAccount</para><para>Source account identifier</para></summary>
-    public required string SenderAccount { get; init; }
+    public required string SenderAccount { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> ReceiverAccount</para><para>Destination account identifier</para></summary>
-    public required string ReceiverAccount { get; init; }
+    public required string ReceiverAccount { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> Amount</para><para>Transfer amount in base currency units</para></summary>
-    public required decimal Amount { get; init; }
+    public required decimal Amount { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> Currency</para><para>ISO 4217 currency code</para></summary>
-    public required string Currency { get; init; }
+    public required string Currency { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> ValueDate</para><para>Settlement date (UTC)</para></summary>
-    public required DateTime ValueDate { get; init; }
+    public DateTime ValueDate { get; init; } = DateTime.UtcNow;
 
     /// <summary><para><strong>@property:</strong> Description</para><para>Optional transaction description</para></summary>
-    public string? Description { get; init; }
-}
+    public string? Description { get; init; } = DateTime.UtcNow;
+} = DateTime.UtcNow;
