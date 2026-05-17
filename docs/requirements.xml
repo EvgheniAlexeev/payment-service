@@ -97,7 +97,7 @@ workflowType: 'requirements'
   </Risks>
 
   <OpenQuestions>
-    <question-1>Which MQ broker? Dapr supports RabbitMQ, Kafka, Azure Service Bus. Kafka is preferred for partition-native scaling; confirm.</question-1>
+    <question-1>Dapr pub/sub component config: which transport? Kafka is preferred for partition-native scaling.</question-1>
     <question-2>SWIFT message format: ISO 20022 (XML) or MT (tag-based)? Affects message schema and validation.</question-2>
     <question-3>How does Writer API authenticate requests? mTLS, API key, or Keycloak tokens from IdentityService?</question-3>
     <question-4>Idempotency key derivation: hash(paymentId + amount + timestamp) or business-level key?</question-4>
