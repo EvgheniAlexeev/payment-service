@@ -115,4 +115,22 @@ public interface IPaymentDocumentRepository
     /// <para><strong>@idempotent:</strong> YES</para>
     /// </remarks>
     Task<bool> ExistsByCorrelationIdAsync(string correlationId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Query payments by account ID (matches sender or receiver) with pagination and total count.
+    /// </summary>
+    /// <remarks>
+    /// <para><strong>@contract-action:</strong> GetByAccountAsync</para>
+    /// <para><strong>@param accountId:</strong> Account identifier (matches SenderAccount or ReceiverAccount)</para>
+    /// <para><strong>@param dateFrom:</strong> Start date inclusive (UTC). If null, defaults to 7 days ago.</para>
+    /// <para><strong>@param dateTo:</strong> End date inclusive (UTC). If null, defaults to current date.</para>
+    /// <para><strong>@param skip:</strong> Result offset for pagination</para>
+    /// <para><strong>@param limit:</strong> Maximum results to return</para>
+    /// <para><strong>@return:</strong> Tuple of (payments list, total count)</para>
+    /// <para><strong>@complexity:</strong> O(log n + k) where k = result set size</para>
+    /// <para><strong>@idempotent:</strong> YES</para>
+    /// </remarks>
+    Task<(List<PaymentDocument> Payments, long TotalCount)> GetByAccountAsync(
+        string accountId, DateTime? dateFrom = null, DateTime? dateTo = null,
+        int skip = 0, int limit = 20, CancellationToken ct = default);
 }

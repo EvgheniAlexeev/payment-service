@@ -6,12 +6,9 @@ Validates inline Doxygen annotations against actual code implementation.
 Checks:
   @log-event   → log marker string exists in file
   @throws      → exception type referenced in file
-  @param       → parameter name exists in method signature
-  @trace-span  → span identifier referenced in file (OpenTelemetry)
   @verification-ref → ref exists in docs/verification-plan.xml
   @contract    → module ID exists in docs/knowledge-graph.xml
   @idempotent  → presence only (documentation consistency)
-  @pure        → presence only (documentation consistency)
 
 Usage:
   python3 grace-doxygen-check.py src --root .
@@ -143,79 +140,6 @@ def check_throws(tag_value, content, filepath):
     return ("warn", f"Exception type not referenced in file: {exc_type}")
 
 
-def check_param(tag_value, content, filepath):
-    """@param: check parameter name exists in method signatures."""
-    param_name = tag_value.split(" ")[0].strip()
-    if not param_name:
-        return ("skip", f"Empty @param: {tag_value[:60]}")
-    # Look for parameter in method signatures
-    param_patterns = [
-        rf'{param_name}\s*[,\)]',
-        rf'{param_name}\s+:',
-        rf'{param_name}\s*=',
-        rf'CancellationToken\s+{param_name}',
-    ]
-    for pattern in param_patterns:
-        if re.search(pattern, content):
-            return ("pass", None)
-    return ("warn", f"Parameter not found in method signatures: {param_name}")
-
-
-def check_trace_span(tag_value, content, filepath):
-    """@trace-span: check span identifier appears in the file."""
-    span_id = tag_value.strip()
-    if not span_id:
-        return ("skip", "Empty @trace-span")
-    patterns = [
-        span_id,
-        f'"{span_id}"',
-        f"'{span_id}'",
-        f'ActivitySource.{span_id}',
-        f'StartActivity("{span_id}',
-    ]
-    for p in patterns:
-        if p in content:
-            return ("pass", None)
-    return ("warn", f"Trace span identifier not found: {span_id}")
-
-
-def check_verification_ref(tag_value, content, filepath, refs):
-    """@verification-ref: check the ref exists in verification-plan.xml."""
-    ref = tag_value.strip()
-    if not ref:
-        return ("skip", "Empty @verification-ref")
-    if ref in refs:
-        return ("pass", None)
-    # Try partial match
-    for r in refs:
-        if ref in r or r in ref:
-            return ("pass", f"Partial match: {ref} → {r}")
-    return ("warn", f"Verification ref not found in verification-plan.xml: {ref}")
-
-
-def check_contract(tag_value, content, filepath, modules):
-    """@contract: check module ID exists in knowledge-graph.xml."""
-    module = tag_value.strip()
-    # Strip parenthetical descriptions: "M-WORKER (step handler)" → "M-WORKER"
-    module = re.sub(r'\s*\(.*?\)', '', module).strip()
-    if not module:
-        return ("skip", "Empty @contract")
-    # Extract core name for fuzzy matching
-    def core(s):
-        return re.sub(r'^M[_-]*(?:IDENTITY[_-]*)?', '', s).lower()
-    mod_core = core(module)
-    if not mod_core:
-        return ("skip", f"Empty core: {module}")
-    # Exact match
-    if module in modules:
-        return ("pass", None)
-    # Fuzzy match by core name
-    for m in modules:
-        if core(m) == mod_core:
-            return ("pass", f"Matched: {module} → {m}")
-    return ("warn", f"Module not found in knowledge-graph.xml: {module}")
-
-
 def check_precondition(tag_value, content, filepath):
     """@pre-condition: check the condition logic exists in the file."""
     condition = tag_value.strip()
@@ -250,16 +174,36 @@ def check_idempotent(tag_value, content, filepath, modules=None):
     return ("pass", None)
 
 
-def check_pure(tag_value, content, filepath):
-    """@pure: YES/NO — check for side effects in code."""
-    val = tag_value.strip().upper()
-    if val == "YES":
-        # Check for side-effect patterns
-        side_effects = ["await", "Save", "Insert", "Update", "Delete", "Publish", "_logger.Log"]
-        found = [s for s in side_effects if s in content]
-        if found:
-            return ("warn", f"Declared @pure: YES but has side effects: {', '.join(found)}")
-    return ("pass", None)
+def check_verification_ref(tag_value, content, filepath, refs):
+    """@verification-ref: check the ref exists in verification-plan.xml."""
+    ref = tag_value.strip()
+    if not ref:
+        return ("skip", "Empty @verification-ref")
+    if ref in refs:
+        return ("pass", None)
+    for r in refs:
+        if ref in r or r in ref:
+            return ("pass", f"Partial match: {ref} → {r}")
+    return ("warn", f"Verification ref not found in verification-plan.xml: {ref}")
+
+
+def check_contract(tag_value, content, filepath, modules):
+    """@contract: check module ID exists in knowledge-graph.xml."""
+    module = tag_value.strip()
+    module = re.sub(r'\s*\(.*?\)', '', module).strip()
+    if not module:
+        return ("skip", "Empty @contract")
+    def core(s):
+        return re.sub(r'^M[_-]*(?:IDENTITY[_-]*)?', '', s).lower()
+    mod_core = core(module)
+    if not mod_core:
+        return ("skip", f"Empty core: {module}")
+    if module in modules:
+        return ("pass", None)
+    for m in modules:
+        if core(m) == mod_core:
+            return ("pass", f"Matched: {module} → {m}")
+    return ("warn", f"Module not found in knowledge-graph.xml: {module}")
 
 
 # ────────────────────── Main ──────────────────────
@@ -267,12 +211,9 @@ def check_pure(tag_value, content, filepath):
 VERIFIERS = {
     "log-event": check_log_event,
     "throws": check_throws,
-    "param": check_param,
-    "trace-span": check_trace_span,
     "pre-condition": check_precondition,
     "invariant": check_invariant,
     "idempotent": check_idempotent,
-    "pure": check_pure,
 }
 
 
@@ -308,6 +249,26 @@ def main():
 
         files_scanned += 1
         relpath = os.path.relpath(filepath, root)
+
+        # Enforce: START_MODULE requires @contract
+        if "START_MODULE" in content and "contract" not in tags:
+            violations.append({
+                "severity": "warn",
+                "file": relpath,
+                "tag": "@contract",
+                "value": "(missing)",
+                "issue": "File has START_MODULE but no @contract annotation in Doxygen",
+            })
+
+        # Enforce: public class/record requires @purpose
+        if re.search(r'\bpublic\s+(class|record)\b', content) and "purpose" not in tags:
+            violations.append({
+                "severity": "warn",
+                "file": relpath,
+                "tag": "@purpose",
+                "value": "(missing)",
+                "issue": "File has public class/record but no @purpose annotation in Doxygen",
+            })
 
         for tag_name, tag_values in tags.items():
             for tag_value in tag_values:

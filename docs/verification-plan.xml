@@ -35,31 +35,76 @@
         <log-marker>[Worker][PaySaga][BLOCK_COMPENSATE]</log-marker>
       </required-signals>
     </VF-003>
+    <VF-004 NAME="SagaDLQOnFailure" USE_CASES="UC-003" DATA_FLOW="DF-SAGA-LIFECYCLE" PRIORITY="critical">
+      <scenario>Payment saga fails at any step (validation, enrichment, settlement)</scenario>
+      <expected-outcome>Saga fails gracefully, PaymentFailed event published to DLQ with full context (original request, failed step, error), NO automatic compensation</expected-outcome>
+      <required-signals>
+        <log-marker>[Worker][PaymentSaga][BLOCK_SAGA_FAILURE]</log-marker>
+      </required-signals>
+    </VF-004>
+
+    <VF-005 NAME="SagaIdempotency" USE_CASES="UC-004" DATA_FLOW="DF-SAGA-LIFECYCLE" PRIORITY="critical">
+      <scenario>Duplicate PaymentCommand with same IdempotencyKey — saga skips re-execution</scenario>
+      <expected-outcome>If saga already completed, Handle returns PaymentSettled without re-executing steps. Idempotency enforced by saga state lookup.</expected-outcome>
+      <required-signals>
+        <log-marker>[Worker][PaymentSaga][BLOCK_IDEMPOTENCY_CHECK]</log-marker>
+      </required-signals>
+    </VF-005>
+
+    <VF-006 NAME="AccountStatementQuery" USE_CASES="UC-007" DATA_FLOW="DF-STATEMENT-QUERY" PRIORITY="high">
+      <scenario>Account holder queries transaction history via Reader API</scenario>
+      <expected-outcome>Paged list of payments returned, sorted by date descending, where account is sender or receiver. Latency ≤ 200ms p95.</expected-outcome>
+      <required-signals>
+        <log-marker>[Reader][GetTransactions][BLOCK_QUERY_MONGODB]</log-marker>
+        <trace-sequence>BLOCK_QUERY_MONGODB → RETURNED</trace-sequence>
+      </required-signals>
+    </VF-006>
   </CriticalFlows>
 
   <ModuleVerification>
     <V-M-READER MODULE="M-READER" PRIORITY="high">
       <test-files>
-        <file>tests/PaymentService.Reader.UnitTests/</file>
+        <file>tests/PaymentService.Api.ReaderService.UnitTests/</file>
+        <file>tests/PaymentService.Api.ReaderService.IntegrationTests/</file>
       </test-files>
       <module-checks>
-        <check-1>dotnet test tests/PaymentService.Reader.UnitTests/</check-1>
-        <check-2>Reader GET endpoints respond with payment documents or 404</check-2>
+        <check-1>dotnet test tests/PaymentService.Api.ReaderService.UnitTests/</check-1>
+        <check-2>dotnet test tests/PaymentService.Api.ReaderService.IntegrationTests/</check-2>
+        <check-3>Reader GET endpoints respond with payment documents or 404</check-3>
+        <check-4>Reader GET transactions: date range defaults and validation</check-4>
       </module-checks>
       <scenarios>
         <scenario-1 kind="success">Query by correlationId returns payment</scenario-1>
         <scenario-2 kind="failure">Invalid correlationId returns 404</scenario-2>
+        <scenario-3 kind="success">Account statement: sender query returns outgoing payments</scenario-3>
+        <scenario-4 kind="success">Account statement: receiver query returns incoming payments</scenario-4>
+        <scenario-5 kind="success">Account statement: date range default to last 7 days</scenario-5>
+        <scenario-6 kind="failure">Account statement: date range exceeds year limit → 400</scenario-6>
       </scenarios>
       <required-log-markers>
-        <marker-1>[Reader][GetPaymentByCorrelationId][BLOCK_QUERY_MONGODB]</marker-1>
+        <marker-1>[PaymentService.Api.ReaderService][Features.GetTransactions][GetTransactionsEndpoint]</marker-1>
+        <marker-2>[PaymentService.Api.ReaderService][Features.GetTransactions][GetTransactionsHandler]</marker-2>
       </required-log-markers>
+      <doxygen-compliance>
+        <tag name="@invariant" source="GetTransactionsEndpoint">accountId non-empty max 64 chars → validated by GetTransactionsValidator</tag>
+        <tag name="@invariant" source="GetTransactionsEndpoint">Date range ≤ days-in-year → validated by GetTransactionsValidator</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">Payments sorted by CreatedAt desc → verified by sort test</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">Date range defaults → verified by default/from-only/to-only tests</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">accountId matches Sender OR Receiver → verified by sender/receiver tests</tag>
+        <tag name="@invariant" source="GetTransactionsResponse">Direction outgoing/incoming → verified by mapper test</tag>
+        <tag name="@throws" source="GetTransactionsEndpoint">ValidationException → covered in validator</tag>
+        <tag name="@throws" source="GetTransactionsHandler">TimeoutException → covered in handler catch block</tag>
+        <tag name="@idempotent" source="GetTransactions*">YES → GET endpoint, idempotent by HTTP semantics</tag>
+        <tag name="@pre-condition" source="GetTransactionsEndpoint">accountId/skip/limit → validated by FluentValidation</tag>
+        <tag name="@post-condition" source="GetTransactionsEndpoint">result non-null → handler guarantees Response object</tag>
+      </doxygen-compliance>
       <wave-follow-up>Integration: Reader → MongoDB queries correct documents</wave-follow-up>
       <phase-follow-up>Load test: 1000 queries/s, p99 ≤100ms</phase-follow-up>
     </V-M-READER>
 
     <V-M-WRITER MODULE="M-WRITER" PRIORITY="high">
       <test-files>
-        <file>tests/PaymentService.Writer.UnitTests/</file>
+        <file>tests/PaymentService.Api.WriterService.UnitTests/</file>
       </test-files>
       <module-checks>
         <check-1>dotnet test tests/PaymentService.Writer.UnitTests/</check-1>
@@ -95,7 +140,7 @@
 
     <V-M-WORKER MODULE="M-WORKER" PRIORITY="critical">
       <test-files>
-        <file>tests/PaymentService.Worker.UnitTests/</file>
+        <file>tests/PaymentService.WorkerService.UnitTests/</file>
       </test-files>
       <module-checks>
         <check-1>dotnet test tests/PaymentService.Worker.UnitTests/</check-1>

@@ -1,4 +1,4 @@
-name: GRACE Phase-3 Lint
+name: GRACE Checks
 
 on:
   pull_request:
@@ -8,31 +8,67 @@ on:
       - master
     paths:
       - 'src/**'
+      - 'tests/**'
+      - 'grace-tooling/**'
       - '.github/workflows/grace-lint.yml'
+  push:
+    branches:
+      - 'fix/**'
+      - 'feature/**'
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'grace-tooling/**'
 
 jobs:
-  lint:
-    name: GRACE Phase-3 Validation
+  build:
+    name: Build & Test
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      checks: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use grace-lint-phase3.py from repo
-        run: chmod +x grace-tooling/grace-lint-phase3.py
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0'
+
+      - name: dotnet restore
+        run: dotnet restore
+
+      - name: dotnet build
+        run: dotnet build --no-restore --verbosity minimal
+
+      - name: dotnet test (unit)
+        run: >
+          dotnet test --no-build --verbosity minimal --logger "trx"
+          --filter "FullyQualifiedName!~IntegrationTests"
+
+      - name: dotnet test (integration — may require Docker)
+        run: >
+          dotnet test --no-build --verbosity minimal --logger "trx"
+          --filter "FullyQualifiedName~IntegrationTests"
+        continue-on-error: true
+
+  lint:
+    name: GRACE Lint & Doxygen Check
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Run GRACE Phase-3 Lint
+      - name: GRACE Phase-3 Lint
         id: lint
         run: |
+          chmod +x grace-tooling/grace-lint-phase3.py
           python3 grace-tooling/grace-lint-phase3.py src --output json --json-path lint-report.json
           EXIT_CODE=$?
           echo "lint_exit=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -40,9 +76,10 @@ jobs:
           exit $EXIT_CODE
         continue-on-error: true
 
-      - name: Run GRACE Doxygen Contract Check
+      - name: GRACE Doxygen Check
         id: doxygen
         run: |
+          chmod +x grace-tooling/grace-doxygen-check.py
           python3 grace-tooling/grace-doxygen-check.py src --root . --json > doxygen-report.json
           EXIT_CODE=$?
           echo "doxygen_exit=$EXIT_CODE" >> $GITHUB_OUTPUT
@@ -50,89 +87,55 @@ jobs:
           exit $EXIT_CODE
         continue-on-error: true
 
-      - name: Parse Lint Results
+      - name: Parse Results
         if: always()
         run: |
           python3 << 'PYEOF'
-          import json
-          import sys
+          import json, sys
 
+          has_errors = False
+
+          # Parse lint results
           try:
-              with open('lint-report.json', 'r') as f:
+              with open('lint-report.json') as f:
                   report = json.load(f)
-          except (FileNotFoundError, json.JSONDecodeError):
-              print("::warning::Lint report not found or malformed")
-              sys.exit(0)
+              errors = report.get('by_severity', {}).get('error', 0)
+              warnings = report.get('by_severity', {}).get('warning', 0)
+              violations = report.get('violations', [])
+              print(f"::notice title=GRACE Lint Report::Files: {report.get('files_scanned', 0)}, "
+                    f"Violations: {errors} errors, {warnings} warnings")
+              for v in violations:
+                  sev = v.get('severity', 'warning')
+                  ann = 'error' if sev == 'error' else 'warning'
+                  print(f"::{ann} file={v.get('file','')},line={v.get('line',0)}::{v.get('issue','')}")
+              if errors > 0:
+                  has_errors = True
+          except FileNotFoundError:
+              print("::warning::Lint report not found")
 
-          total = report.get('total_violations', 0)
-          errors = report.get('by_severity', {}).get('error', 0)
-          warnings = report.get('by_severity', {}).get('warning', 0)
-          violations = report.get('violations', [])
+          # Parse doxygen results
+          try:
+              with open('doxygen-report.json') as f:
+                  report = json.load(f)
+              files_scanned = report.get('files_scanned', 0)
+              tags_checked = report.get('tags_checked', 0)
+              total = report.get('total_violations', 0)
+              errors = report.get('by_severity', {}).get('error', 0)
+              warnings = report.get('by_severity', {}).get('warning', 0)
+              print(f"::notice title=Doxygen Contract Check::Files: {files_scanned}, "
+                    f"Tags: {tags_checked}, Violations: {total} ({errors} errors, {warnings} warnings)")
+              for v in report.get('violations', []):
+                  sev = v.get('severity', 'warning')
+                  ann = 'error' if sev == 'error' else 'warning'
+                  print(f"::{ann} file={v.get('file','')},line=0::{v.get('tag','')}: {v.get('issue','')}")
+              if errors > 0:
+                  has_errors = True
+          except FileNotFoundError:
+              print("::warning::Doxygen report not found")
 
-          print(f"::notice title=GRACE Lint Report::Files: {report.get('files_scanned', 0)}, "
-                f"Violations: {total} ({errors} errors, {warnings} warnings)")
-
-          for v in violations:
-              severity = v.get('severity', 'warning')
-              file = v.get('file', '')
-              line = v.get('line', 0)
-              issue = v.get('issue', '')
-              annotation = f"::error" if severity == 'error' else f"::warning"
-              print(f"{annotation} file={file},line={line}::{issue}")
-
-          if errors > 0:
-              print(f"\n❌ GRACE Phase-3 validation failed: {errors} error(s). Merge blocked.")
+          if has_errors:
+              print("\n❌ GRACE checks failed. Merge blocked.")
               sys.exit(1)
           else:
-              print(f"\n✅ GRACE Phase-3 validation passed. {warnings} warning(s) found.")
+              print("\n✅ All GRACE checks passed.")
           PYEOF
-
-      - name: Comment on PR
-        if: failure() && steps.lint.outputs.lint_exit != '0'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            try {
-              const report = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
-              const violations = report.violations || [];
-              const errors = violations.filter(v => v.severity === 'error');
-              const warnings = violations.filter(v => v.severity === 'warning');
-
-              let body = `## ❌ GRACE Phase-3 Validation Failed\n\n`;
-              body += `**Files scanned:** ${report.files_scanned || 0}\n`;
-              body += `**Errors:** ${errors.length}\n`;
-              body += `**Warnings:** ${warnings.length}\n\n`;
-
-              if (errors.length > 0) {
-                body += `### Errors\n`;
-                errors.slice(0, 20).forEach(e => {
-                  body += `- **\`${e.file}:${e.line}\`**: ${e.issue}\n`;
-                });
-                if (errors.length > 20) {
-                  body += `- *... and ${errors.length - 20} more errors*\n`;
-                }
-                body += `\n`;
-              }
-
-              if (warnings.length > 0) {
-                body += `### Warnings\n`;
-                warnings.slice(0, 10).forEach(w => {
-                  body += `- **\`${w.file}:${w.line}\`**: ${w.issue}\n`;
-                });
-                body += `\n`;
-              }
-
-              body += `---\n`;
-              body += `To run locally: \`python3 grace-tooling/grace-lint-phase3.py src --output text\``;
-
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            } catch (e) {
-              console.log('Could not parse lint report');
-            }
