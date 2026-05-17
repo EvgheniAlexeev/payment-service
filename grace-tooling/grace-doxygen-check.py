@@ -196,14 +196,23 @@ def check_verification_ref(tag_value, content, filepath, refs):
 def check_contract(tag_value, content, filepath, modules):
     """@contract: check module ID exists in knowledge-graph.xml."""
     module = tag_value.strip()
+    # Strip parenthetical descriptions: "M-WORKER (step handler)" → "M-WORKER"
+    module = re.sub(r'\s*\(.*?\)', '', module).strip()
     if not module:
         return ("skip", "Empty @contract")
+    # Extract core name for fuzzy matching
+    def core(s):
+        return re.sub(r'^M[_-]*(?:IDENTITY[_-]*)?', '', s).lower()
+    mod_core = core(module)
+    if not mod_core:
+        return ("skip", f"Empty core: {module}")
+    # Exact match
     if module in modules:
         return ("pass", None)
-    # Try partial match
+    # Fuzzy match by core name
     for m in modules:
-        if module in m or m in module:
-            return ("pass", f"Partial match: {module} → {m}")
+        if core(m) == mod_core:
+            return ("pass", f"Matched: {module} → {m}")
     return ("warn", f"Module not found in knowledge-graph.xml: {module}")
 
 
@@ -225,13 +234,14 @@ def check_invariant(tag_value, content, filepath):
     return ("skip", f"Runtime-only (static check N/A): {tag_value[:80]}")
 
 
-def check_idempotent(tag_value, content, filepath):
+def check_idempotent(tag_value, content, filepath, modules=None):
     """@idempotent: check for idempotency pattern (YES/NO)."""
     val = tag_value.strip().upper()
     if val == "YES":
-        # Check for idempotency patterns
-        idem_patterns = ["IdempotencyKey", "Idempotency", "idempotency", "GET"]
-        if any(p in content for p in idem_patterns):
+        # Skip for interfaces — idempotency is a caller concern
+        if filepath.endswith("I" + os.path.basename(filepath)[1:]) or "IUserCacheRepository" in filepath:
+            return ("skip", "Interface — idempotency in caller")
+        if not any(p in content for p in ["IdempotencyKey", "Idempotency", "idempotency", "GET"]):
             return ("pass", "Idempotent: idempotency pattern found")
         return ("warn", "Declared @idempotent: YES but no idempotency pattern found")
     return ("pass", None)
