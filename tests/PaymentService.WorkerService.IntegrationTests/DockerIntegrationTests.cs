@@ -75,7 +75,7 @@ public class DockerIntegrationTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = $"IDEM-{correlationId}",
         });
         saga.State.Status.Should().Be("Validating");
@@ -128,7 +128,7 @@ public class DockerIntegrationTests
         saga1.Handle(new PaymentCommand
         {
             CorrelationId = cid1,
-            Request = TestDataFactory.CreateValidRequest(cid1),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid1),
             IdempotencyKey = $"IDEM-{cid1}",
         });
         saga1.Handle(new PaymentValidated { CorrelationId = cid1, IsValid = false, ErrorMessage = "Docker validation error" });
@@ -144,7 +144,7 @@ public class DockerIntegrationTests
         saga2.Handle(new PaymentCommand
         {
             CorrelationId = cid2,
-            Request = TestDataFactory.CreateValidRequest(cid2),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid2),
             IdempotencyKey = $"IDEM-{cid2}",
         });
         saga2.Handle(new PaymentValidated { CorrelationId = cid2, IsValid = true });
@@ -162,7 +162,7 @@ public class DockerIntegrationTests
         saga3.Handle(new PaymentCommand
         {
             CorrelationId = cid3,
-            Request = TestDataFactory.CreateValidRequest(cid3),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid3),
             IdempotencyKey = $"IDEM-{cid3}",
         });
         saga3.Handle(new PaymentValidated { CorrelationId = cid3, IsValid = true });
@@ -194,7 +194,7 @@ public class DockerIntegrationTests
             saga.Handle(new PaymentCommand
             {
                 CorrelationId = cid,
-                Request = TestDataFactory.CreateValidRequest(cid, amount: 10m * (i + 1)),
+                PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 10m * (i + 1)),
                 IdempotencyKey = $"IDEM-BLK-{i:D4}",
             });
 
@@ -242,7 +242,7 @@ public class DockerIntegrationTests
         saga1.Handle(new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = TestDataFactory.CreateValidRequest(correlationId, amount: 500m),
+            PaymentRequest = TestDataFactory.CreateValidRequest(correlationId, amount: 500m),
             IdempotencyKey = $"IDEM-RETRY",
         });
         saga1.Handle(new PaymentValidated { CorrelationId = correlationId, IsValid = true });
@@ -257,7 +257,7 @@ public class DockerIntegrationTests
         saga2.Handle(new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = TestDataFactory.CreateValidRequest(correlationId, amount: 500m),
+            PaymentRequest = TestDataFactory.CreateValidRequest(correlationId, amount: 500m),
             IdempotencyKey = $"IDEM-RETRY-2",
         });
         saga2.Handle(new PaymentValidated { CorrelationId = correlationId, IsValid = true });

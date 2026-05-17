@@ -20,21 +20,25 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: 'recursive'
+        uses: actions/checkout@v4
+
+      - name: Download grace-lint-phase3.py
+        run: |
+          mkdir -p grace-tooling
+          curl -sL https://raw.githubusercontent.com/EvgheniAlexeev/grace-tooling/main/grace-lint-phase3.py -o grace-tooling/grace-lint-phase3.py
+          chmod +x grace-tooling/grace-lint-phase3.py
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.11'
 
-      - name: Run GRACE Phase-3 Lint (Strict)
+      - name: Run GRACE Phase-3 Lint
         id: lint
         run: |
-          python3 ../../grace-tooling/grace-lint-phase3.py --strict --json > lint-report.json
+          python3 grace-tooling/grace-lint-phase3.py src --output json --json-path lint-report.json
           EXIT_CODE=$?
+          echo "lint_exit=$EXIT_CODE" >> $GITHUB_OUTPUT
           cat lint-report.json
           exit $EXIT_CODE
         continue-on-error: true
@@ -42,59 +46,85 @@ jobs:
       - name: Parse Lint Results
         if: always()
         run: |
-          python3 << 'EOF'
+          python3 << 'PYEOF'
           import json
           import sys
-          
+
           try:
               with open('lint-report.json', 'r') as f:
                   report = json.load(f)
-          except:
+          except (FileNotFoundError, json.JSONDecodeError):
               print("::warning::Lint report not found or malformed")
-              exit(0)
-          
-          errors = report.get('errors', [])
-          warnings = report.get('warnings', [])
-          
-          print(f"::notice title=GRACE Lint Report::Errors: {len(errors)}, Warnings: {len(warnings)}")
-          
-          for error in errors:
-              print(f"::error file={error['file']},line={error.get('line', 0)}::{error['message']}")
-          
-          for warning in warnings:
-              print(f"::warning file={warning['file']},line={warning.get('line', 0)}::{warning['message']}")
-          
-          if errors:
-              print("\n❌ GRACE Phase-3 validation failed. Merge blocked.")
+              sys.exit(0)
+
+          total = report.get('total_violations', 0)
+          errors = report.get('by_severity', {}).get('error', 0)
+          warnings = report.get('by_severity', {}).get('warning', 0)
+          violations = report.get('violations', [])
+
+          print(f"::notice title=GRACE Lint Report::Files: {report.get('files_scanned', 0)}, "
+                f"Violations: {total} ({errors} errors, {warnings} warnings)")
+
+          for v in violations:
+              severity = v.get('severity', 'warning')
+              file = v.get('file', '')
+              line = v.get('line', 0)
+              issue = v.get('issue', '')
+              annotation = f"::error" if severity == 'error' else f"::warning"
+              print(f"{annotation} file={file},line={line}::{issue}")
+
+          if errors > 0:
+              print(f"\n❌ GRACE Phase-3 validation failed: {errors} error(s). Merge blocked.")
               sys.exit(1)
           else:
-              print("\n✅ GRACE Phase-3 validation passed.")
-          EOF
+              print(f"\n✅ GRACE Phase-3 validation passed. {warnings} warning(s) found.")
+          PYEOF
 
       - name: Comment on PR
-        if: failure()
-        uses: actions/github-script@v6
+        if: failure() && steps.lint.outputs.lint_exit != '0'
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             try {
               const report = JSON.parse(fs.readFileSync('lint-report.json', 'utf8'));
-              const errors = report.errors || [];
-              
-              const comment = `## ❌ GRACE Phase-3 Validation Failed
-              
-              **Errors:** ${errors.length}
-              
-              ${errors.map(e => `- **${e.file}** (line ${e.line || '?'}): ${e.message}`).join('\n')}
-              
-              Please fix all violations before merging.`;
-              
+              const violations = report.violations || [];
+              const errors = violations.filter(v => v.severity === 'error');
+              const warnings = violations.filter(v => v.severity === 'warning');
+
+              let body = `## ❌ GRACE Phase-3 Validation Failed\n\n`;
+              body += `**Files scanned:** ${report.files_scanned || 0}\n`;
+              body += `**Errors:** ${errors.length}\n`;
+              body += `**Warnings:** ${warnings.length}\n\n`;
+
+              if (errors.length > 0) {
+                body += `### Errors\n`;
+                errors.slice(0, 20).forEach(e => {
+                  body += `- **\`${e.file}:${e.line}\`**: ${e.issue}\n`;
+                });
+                if (errors.length > 20) {
+                  body += `- *... and ${errors.length - 20} more errors*\n`;
+                }
+                body += `\n`;
+              }
+
+              if (warnings.length > 0) {
+                body += `### Warnings\n`;
+                warnings.slice(0, 10).forEach(w => {
+                  body += `- **\`${w.file}:${w.line}\`**: ${w.issue}\n`;
+                });
+                body += `\n`;
+              }
+
+              body += `---\n`;
+              body += `To run locally: \`python3 grace-tooling/grace-lint-phase3.py src --output text\``;
+
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: comment
+                body: body
               });
             } catch (e) {
               console.log('Could not parse lint report');

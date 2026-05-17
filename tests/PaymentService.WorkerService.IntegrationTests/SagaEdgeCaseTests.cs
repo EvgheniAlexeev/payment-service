@@ -13,6 +13,7 @@
 // SEMANTIC_TAG: [BLOCK_TEST_SAGA_EDGE] Edge case saga tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Workers.Services;
 using PaymentService.Shared.Commands;
 using PaymentService.Workers.Events;
 using PaymentService.Workers.Sagas;
@@ -30,7 +31,7 @@ public class SagaEdgeCaseTests
         var startCmd = new PaymentCommand
         {
             CorrelationId = "TRANSITION-001",
-            Request = TestDataFactory.CreateValidRequest("TRANSITION-001", amount: 500m),
+            PaymentRequest = TestDataFactory.CreateValidRequest("TRANSITION-001", amount: 500m),
             IdempotencyKey = "IDEM-TR-001",
         };
 
@@ -102,7 +103,7 @@ public class SagaEdgeCaseTests
         var startCmd = new PaymentCommand
         {
             CorrelationId = "DLQ-RETRY",
-            Request = TestDataFactory.CreateValidRequest("DLQ-RETRY"),
+            PaymentRequest = TestDataFactory.CreateValidRequest("DLQ-RETRY"),
             IdempotencyKey = "IDEM-RETRY",
         };
         saga.Handle(startCmd);
@@ -128,7 +129,7 @@ public class SagaEdgeCaseTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "DLQ-TIME",
-            Request = TestDataFactory.CreateValidRequest("DLQ-TIME"),
+            PaymentRequest = TestDataFactory.CreateValidRequest("DLQ-TIME"),
             IdempotencyKey = "IDEM-TIME",
         });
 
@@ -196,7 +197,7 @@ public class SagaEdgeCaseTests
             var cmd = new PaymentCommand
             {
                 CorrelationId = $"CONCURRENT-{i:D3}",
-                Request = TestDataFactory.CreateValidRequest($"CONCURRENT-{i:D3}", amount: 100m * (i + 1)),
+                PaymentRequest = TestDataFactory.CreateValidRequest($"CONCURRENT-{i:D3}", amount: 100m * (i + 1)),
                 IdempotencyKey = $"IDEM-CONC-{i:D3}",
             };
             sagas[i].saga.Handle(cmd);
@@ -254,7 +255,7 @@ public class SagaEdgeCaseTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "FAILED-AT",
-            Request = TestDataFactory.CreateValidRequest("FAILED-AT"),
+            PaymentRequest = TestDataFactory.CreateValidRequest("FAILED-AT"),
             IdempotencyKey = "IDEM-FAIL-AT",
         });
 
@@ -289,7 +290,7 @@ public class SagaEdgeCaseTests
         var cmd = new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = TestDataFactory.CreateValidRequest(correlationId, amount: amount),
+            PaymentRequest = TestDataFactory.CreateValidRequest(correlationId, amount: amount),
             IdempotencyKey = $"IDEM-{correlationId}",
         };
         saga.Handle(cmd);

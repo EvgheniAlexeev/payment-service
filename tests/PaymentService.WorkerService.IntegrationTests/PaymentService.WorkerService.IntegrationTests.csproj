@@ -12,6 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Xunit.SkippableFact" Version="1.5.23" />
     <PackageReference Include="FakeItEasy" Version="8.4.0" />
     <PackageReference Include="FluentAssertions" Version="7.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />

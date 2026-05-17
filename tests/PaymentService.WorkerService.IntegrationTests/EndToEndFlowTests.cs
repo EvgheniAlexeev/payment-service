@@ -13,10 +13,12 @@
 // SEMANTIC_TAG: [BLOCK_TEST_E2E] End-to-end flow tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Workers.Services;
 using PaymentService.Shared.Commands;
 using PaymentService.Shared.Events;
 using PaymentService.Workers.Commands;
 using PaymentService.Workers.Events;
+using PaymentService.Workers.Steps;
 using PaymentService.Workers.Sagas;
 
 public class EndToEndFlowTests
@@ -49,7 +51,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "E2E-VALFAIL",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "ID-E2E-VF",
         });
 
@@ -81,7 +83,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "E2E-RSVFAIL",
-            Request = TestDataFactory.CreateValidRequest("E2E-RSVFAIL", amount: 750m),
+            PaymentRequest = TestDataFactory.CreateValidRequest("E2E-RSVFAIL", amount: 750m),
             IdempotencyKey = "ID-E2E-RF",
         });
 
@@ -114,7 +116,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "E2E-STLFAIL",
-            Request = TestDataFactory.CreateValidRequest("E2E-STLFAIL", amount: 2000m, currency: "CHF"),
+            PaymentRequest = TestDataFactory.CreateValidRequest("E2E-STLFAIL", amount: 2000m, currency: "CHF"),
             IdempotencyKey = "ID-E2E-SF",
         });
 
@@ -210,7 +212,7 @@ public class EndToEndFlowTests
             saga.Handle(new PaymentCommand
             {
                 CorrelationId = "MIX-FV",
-                Request = TestDataFactory.CreateValidRequest("MIX-FV", amount: 300m),
+                PaymentRequest = TestDataFactory.CreateValidRequest("MIX-FV", amount: 300m),
                 IdempotencyKey = "ID-MIX-FV",
             });
             saga.Handle(new PaymentValidated { CorrelationId = "MIX-FV", IsValid = false, ErrorMessage = "Fail" });
@@ -223,7 +225,7 @@ public class EndToEndFlowTests
             saga.Handle(new PaymentCommand
             {
                 CorrelationId = "MIX-FR",
-                Request = TestDataFactory.CreateValidRequest("MIX-FR", amount: 400m),
+                PaymentRequest = TestDataFactory.CreateValidRequest("MIX-FR", amount: 400m),
                 IdempotencyKey = "ID-MIX-FR",
             });
             saga.Handle(new PaymentValidated { CorrelationId = "MIX-FR", IsValid = true });
@@ -238,7 +240,7 @@ public class EndToEndFlowTests
             saga.Handle(new PaymentCommand
             {
                 CorrelationId = "MIX-FS",
-                Request = TestDataFactory.CreateValidRequest("MIX-FS", amount: 500m),
+                PaymentRequest = TestDataFactory.CreateValidRequest("MIX-FS", amount: 500m),
                 IdempotencyKey = "ID-MIX-FS",
             });
             saga.Handle(new PaymentValidated { CorrelationId = "MIX-FS", IsValid = true });
@@ -334,7 +336,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = cid,
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "ID-INT-VF",
         });
         saga.Handle(new PaymentValidated
@@ -366,7 +368,7 @@ public class EndToEndFlowTests
         result.IsSuccessful.Should().BeFalse();
 
         // Saga receives failure
-        saga.Handle(new PaymentCommand { CorrelationId = cid, Request = request, IdempotencyKey = "ID-INT-RF" });
+        saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = request, IdempotencyKey = "ID-INT-RF" });
         saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
         saga.State.Status = "ReservingFunds";
         saga.Handle(result);
@@ -397,7 +399,7 @@ public class EndToEndFlowTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = TestDataFactory.CreateValidRequest(correlationId, amount: amount, currency: currency),
+            PaymentRequest = TestDataFactory.CreateValidRequest(correlationId, amount: amount, currency: currency),
             IdempotencyKey = $"ID-{correlationId}",
         });
 

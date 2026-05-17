@@ -36,7 +36,7 @@ public class PaymentSagaTests
         var command = new PaymentCommand
         {
             CorrelationId = "SAGA-START-001",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "IDEM-START-001",
         };
 
@@ -61,7 +61,7 @@ public class PaymentSagaTests
         var command = new PaymentCommand
         {
             CorrelationId = "SAGA-START-002",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "IDEM-002",
         };
 
@@ -83,7 +83,7 @@ public class PaymentSagaTests
         var command = new PaymentCommand
         {
             CorrelationId = "SAGA-LARGE",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "IDEM-LARGE",
         };
 
@@ -198,7 +198,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-OK");
         state.Status = "ReservingFunds";
-        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
+        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
 
         var successEvent = new FundsReserved
         {
@@ -227,7 +227,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-FAIL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
+        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
 
         var failEvent = new FundsReserved
         {
@@ -254,7 +254,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-NULL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
+        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
 
         var failEvent = new FundsReserved
         {
@@ -275,7 +275,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-OK");
         state.Status = "Settling";
-        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
+        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
         state.ReservationId = "RSV-SAGA-STL";
 
         var successEvent = new PaymentSettledInternal
@@ -304,7 +304,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-FAIL", dlq: dlq);
         state.Status = "Settling";
-        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
+        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
         state.ReservationId = "RSV-STL-FAIL";
 
         var failEvent = new PaymentSettledInternal
@@ -339,7 +339,7 @@ public class PaymentSagaTests
         var startCmd = new PaymentCommand
         {
             CorrelationId = "FULL-HAPPY-001",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "IDEM-FULL-001",
         };
         var step1 = saga.Handle(startCmd);
@@ -404,7 +404,7 @@ public class PaymentSagaTests
         var startCmd = new PaymentCommand
         {
             CorrelationId = correlationId,
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = $"IDEM-{correlationId}",
         };
         saga.Handle(startCmd);
@@ -540,7 +540,7 @@ public class PaymentSagaTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = "DLQ-CONTENT-001",
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "IDEM-DLQ-001",
         });
 
@@ -583,7 +583,7 @@ public class PaymentSagaTests
         {
             saga.State.Id = correlationId;
             saga.State.CorrelationId = correlationId;
-            saga.State.PaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
+            saga.State.PaymentPaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
             saga.State.Status = "Validating";
             saga.State.CreatedAt = DateTime.UtcNow;
         }
