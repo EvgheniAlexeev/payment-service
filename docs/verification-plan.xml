@@ -50,6 +50,15 @@
         <log-marker>[Worker][PaymentSaga][BLOCK_IDEMPOTENCY_CHECK]</log-marker>
       </required-signals>
     </VF-005>
+
+    <VF-006 NAME="AccountStatementQuery" USE_CASES="UC-007" DATA_FLOW="DF-STATEMENT-QUERY" PRIORITY="high">
+      <scenario>Account holder queries transaction history via Reader API</scenario>
+      <expected-outcome>Paged list of payments returned, sorted by date descending, where account is sender or receiver. Latency ≤ 200ms p95.</expected-outcome>
+      <required-signals>
+        <log-marker>[Reader][GetTransactions][BLOCK_QUERY_MONGODB]</log-marker>
+        <trace-sequence>BLOCK_QUERY_MONGODB → RETURNED</trace-sequence>
+      </required-signals>
+    </VF-006>
   </CriticalFlows>
 
   <ModuleVerification>

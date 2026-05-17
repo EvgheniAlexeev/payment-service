@@ -23,6 +23,7 @@
       <annotations>
         <export-GetPaymentByCorrelationId PURPOSE="GET /api/payments/{correlationId}" />
         <export-GetPaymentsBatch PURPOSE="GET /api/payments/batch (paged)" />
+        <export-GetAccountTransactions PURPOSE="GET /api/accounts/{accountId}/transactions — transaction history (paged)" />
       </annotations>
     </M-READER>
 

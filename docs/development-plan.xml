@@ -198,6 +198,12 @@
       <step-5>On any step failure: trigger compensation → revert settlement, release reserved funds, update saga state = Failed.</step-5>
       <evidence>[Worker][PaySaga][BLOCK_COMPENSATE] emitted on failure; no BLOCK_MARK_SETTLED after compensate; saga state persisted with status=Failed.</evidence>
     </DF-SAGA-LIFECYCLE>
+    <DF-STATEMENT-QUERY NAME="Account Statement Query" TRIGGER="GET /api/accounts/{accountId}/transactions">
+      <step-1>Reader API receives accountId with pagination params, validates via FluentValidation.</step-1>
+      <step-2>Reader queries MongoDB with compound index on Request.SenderAccount and Request.ReceiverAccount, sorted by CreatedAt desc.</step-2>
+      <step-3>Reader returns 200 + paged transaction list or empty array if no transactions.</step-3>
+      <evidence>[Reader][GetTransactions][BLOCK_QUERY_MONGODB] RETURNED:{paymentCount}</evidence>
+    </DF-STATEMENT-QUERY>
   </DataFlow>
 
   <ImplementationOrder>
@@ -228,7 +234,17 @@
       </solution>
     </Phase-3>
 
-    <Phase-4 name="Deployment-and-Scale" status="pending">
+    <Phase-4 name="Account-Statements" status="pending">
+      <goal>Add account transaction history query endpoint and MongoDB indexes.</goal>
+      <solution name="PaymentServices">
+        <step-1 module="M-READER" status="pending" verification="V-M-READER">Add GET /api/accounts/{accountId}/transactions endpoint with FluentValidation, pagination, MongoDB compound index query.</step-1>
+        <step-2 module="M-MONGO" status="pending" verification="V-M-MONGO">Add MongoDB compound index on PaymentDocument.Request.SenderAccount and Request.ReceiverAccount with sort by CreatedAt desc.</step-2>
+        <step-3 module="M-READER" status="pending" verification="V-M-READER">Integration tests: statement query returns correct payments for sender, receiver, mixed; pagination; empty account.</step-3>
+        <step-4 module="M-SHARED" status="pending" verification="V-M-SHARED">Add TransactionHistoryResponse DTO with paged payment list.</step-4>
+      </solution>
+    </Phase-4>
+
+    <Phase-5 name="Deployment-and-Scale" status="pending">
       <goal>K8s manifests, Dapr component configs, GitOps pipeline, and throughput validation under load.</goal>
       <solution name="PaymentServices">
         <step-1 module="M-DEPLOY" status="pending" verification="V-M-DEPLOY">K8s manifests: Reader/Writer/Worker Deployments, Dapr pub/sub Component, MongoDB StatefulSet, DLQ topic.</step-1>

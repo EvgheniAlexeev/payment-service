@@ -70,6 +70,15 @@ workflowType: 'requirements'
       <Priority>critical</Priority>
       <RelatedFlows>DF-SAGA-LIFECYCLE</RelatedFlows>
     </UC-006>
+    <UC-007>
+      <Actor>AccountHolder</Actor>
+      <Action>Queries transaction history for an account via Reader API</Action>
+      <Goal>Retrieve paged list of payments where the account appears as sender or receiver, sorted by date descending</Goal>
+      <Preconditions>Account ID is known; MongoDB index on sender/receiver exists</Preconditions>
+      <AcceptanceCriteria>Response includes full payment timeline for each transaction; query latency ≤ 200ms p95</AcceptanceCriteria>
+      <Priority>high</Priority>
+      <RelatedFlows>DF-STATEMENT-QUERY</RelatedFlows>
+    </UC-007>
   </UseCases>
 
   <NonGoals>
