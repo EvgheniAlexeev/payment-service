@@ -45,4 +45,4 @@ Console.WriteLine(
     "Worker started.");
 
 await host.RunAsync();
-// END_BLOCK_MODULE
+// END_BLOCK_PROGRAM

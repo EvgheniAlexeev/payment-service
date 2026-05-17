@@ -35,3 +35,4 @@ public record PaymentFailed : IEvent
 
     public DateTime FailedAt { get; init; }
 }
+// END_BLOCK_PAYMENT_FAILED

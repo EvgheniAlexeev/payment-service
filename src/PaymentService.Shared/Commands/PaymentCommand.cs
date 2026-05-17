@@ -32,3 +32,4 @@ public record PaymentCommand : ICommand
 
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 }
+// END_BLOCK_PAYMENT_COMMAND

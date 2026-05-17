@@ -1,5 +1,7 @@
 // FILE: src/PaymentService.Shared/Dtos/PaymentRequestDto.cs
 // VERSION: 1.0.0
+// MODULE: M-SHARED
+// PURPOSE: Payment request data transfer object
 
 namespace PaymentService.Shared.Dtos;
 
