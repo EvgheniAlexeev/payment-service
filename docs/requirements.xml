@@ -91,7 +91,7 @@ workflowType: 'requirements'
   <Risks>
     <risk-1>Message ordering within a partition: if Wolverine sagas depend on strict ordering per correlationId, partition key design is critical.</risk-1>
     <risk-2>Idempotency gaps: if the same payment message is replayed by the MQ after partial saga progress, duplicate steps must be detected and skipped.</risk-2>
-    <risk-3>Dapr pub/sub component latency at scale: verify that the chosen MQ binding (RabbitMQ/Kafka) sustains the required throughput under partition fan-out.</risk-3>
+    <risk-3>Dapr pub/sub component latency at scale: verify that the Dapr pub/sub component sustains the required throughput under partition fan-out.</risk-3>
     <risk-4>Cold-start saga hydration from MongoDB: large saga state documents may add latency when the Worker restarts and replays pending sagas.</risk-4>
     <risk-5>Read-write consistency: MongoDB eventual consistency window may show stale payment states on Reader queries immediately after saga completion.</risk-5>
   </Risks>
