@@ -13,6 +13,7 @@
 // SEMANTIC_TAG: [BLOCK_TEST_SHARED] Shared event and model tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Shared.Commands;
 using PaymentService.Shared.Dtos;
 using PaymentService.Shared.Events;
 
@@ -25,7 +26,7 @@ public class SharedEventTests
         var failed = new PaymentFailed
         {
             CorrelationId = "SHARED-FAIL-001",
-            OriginalRequest = request,
+            OriginalPaymentRequest = request,
             FailedStep = "Validate",
             ErrorMessage = "Compliance violation",
             ErrorCode = "COMPLIANCE_VIOLATION",
@@ -210,7 +211,7 @@ public class PaymentCommandTests
         var command = new PaymentCommand
         {
             CorrelationId = request.CorrelationId,
-            Request = request,
+            PaymentRequest = request,
             IdempotencyKey = "idem-key-12345",
         };
 

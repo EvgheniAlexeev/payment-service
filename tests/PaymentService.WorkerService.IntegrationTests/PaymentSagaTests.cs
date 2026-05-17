@@ -198,7 +198,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-OK");
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-OK", amount: 500m);
 
         var successEvent = new FundsReserved
         {
@@ -227,7 +227,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-FAIL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-FAIL");
 
         var failEvent = new FundsReserved
         {
@@ -254,7 +254,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-RSV-NULL", dlq: dlq);
         state.Status = "ReservingFunds";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-RSV-NULL");
 
         var failEvent = new FundsReserved
         {
@@ -275,7 +275,7 @@ public class PaymentSagaTests
     {
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-OK");
         state.Status = "Settling";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-OK", amount: 750m);
         state.ReservationId = "RSV-SAGA-STL";
 
         var successEvent = new PaymentSettledInternal
@@ -304,7 +304,7 @@ public class PaymentSagaTests
         var dlq = new CapturingDLQPublisher();
         var (saga, state) = CreateSaga(started: true, correlationId: "SAGA-STL-FAIL", dlq: dlq);
         state.Status = "Settling";
-        state.PaymentPaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
+        state.PaymentRequest = TestDataFactory.CreateValidRequest("SAGA-STL-FAIL");
         state.ReservationId = "RSV-STL-FAIL";
 
         var failEvent = new PaymentSettledInternal
@@ -583,7 +583,7 @@ public class PaymentSagaTests
         {
             saga.State.Id = correlationId;
             saga.State.CorrelationId = correlationId;
-            saga.State.PaymentPaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
+            saga.State.PaymentRequest = TestDataFactory.CreateValidRequest(correlationId);
             saga.State.Status = "Validating";
             saga.State.CreatedAt = DateTime.UtcNow;
         }
