@@ -10,6 +10,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using PaymentService.Api.ReaderService.Features.GetPayment;
+using PaymentService.Api.ReaderService.Features.GetTransactions;
 using PaymentService.Api.ReaderService.Features.QueryPayments;
 
 namespace PaymentService.Api.ReaderService.Features;
@@ -30,6 +31,11 @@ public static class VsaFeatureRegistration
         services.AddScoped<QueryPaymentsHandler>();
         services.AddScoped<QueryPaymentsEndpoint>();
         // services.AddValidatorsFromAssemblyContaining<QueryPaymentsValidator>();
+
+        // GetTransactions feature
+        services.AddScoped<GetTransactionsHandler>();
+        services.AddScoped<GetTransactionsEndpoint>();
+        services.AddScoped<GetTransactionsValidator>();
 
         return services;
     }

@@ -115,4 +115,37 @@ public class PaymentDocumentRepository : IPaymentDocumentRepository
         var count = await _context.Payments.CountDocumentsAsync(filter, null, ct);
         return count > 0;
     }
+
+    public async Task<(List<PaymentDocument> Payments, long TotalCount)> GetByAccountAsync(
+        string accountId, int skip = 0, int limit = 20, CancellationToken ct = default)
+    {
+        // START_BLOCK_GET_BY_ACCOUNT
+        _logger.LogInformation(
+            "[PaymentService.Persistence][PaymentDocumentRepository][BLOCK_GET_BY_ACCOUNT] " +
+            "Querying payments for account {AccountId} (skip={Skip}, limit={Limit})",
+            accountId, skip, limit);
+
+        var senderFilter = Builders<PaymentDocument>.Filter.Eq(p => p.Request.SenderAccount, accountId);
+        var receiverFilter = Builders<PaymentDocument>.Filter.Eq(p => p.Request.ReceiverAccount, accountId);
+        var filter = Builders<PaymentDocument>.Filter.Or(senderFilter, receiverFilter);
+
+        var totalCount = await _context.Payments.CountDocumentsAsync(filter, null, ct);
+
+        var sort = Builders<PaymentDocument>.Sort.Descending(p => p.CreatedAt);
+
+        var payments = await _context.Payments
+            .Find(filter)
+            .Sort(sort)
+            .Skip(skip)
+            .Limit(limit)
+            .ToListAsync(ct);
+
+        _logger.LogInformation(
+            "[PaymentService.Persistence][PaymentDocumentRepository][BLOCK_GET_BY_ACCOUNT] " +
+            "Found {Count} payments for account {AccountId} (total: {Total})",
+            payments.Count, accountId, totalCount);
+
+        return (payments, totalCount);
+        // END_BLOCK_GET_BY_ACCOUNT
+    }
 }
