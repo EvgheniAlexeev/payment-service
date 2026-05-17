@@ -66,7 +66,7 @@ public class PaymentWriterConcurrencyTests : IClassFixture<WriterApiFixture>
             ReceiverAccount = "DST",
             Amount = 100m,
             Currency = "USD",
-            ValueDate = null
+            ValueDate = DateTime.UtcNow
         };
 
         var response = await _fixture.Client.PostAsJsonAsync("/api/payment", request);

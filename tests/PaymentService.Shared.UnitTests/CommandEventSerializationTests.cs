@@ -33,7 +33,7 @@ public class CommandEventSerializationTests
         {
             IdempotencyKey = "key-123",
             CorrelationId = "corr-123",
-            Request = new PaymentRequestDto
+            PaymentRequest = new PaymentRequestDto
             {
                 CorrelationId = "corr-123",
                 SenderAccount = "ACC1",

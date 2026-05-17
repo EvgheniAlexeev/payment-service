@@ -180,6 +180,7 @@ public class PaymentWriterValidationTests : IClassFixture<WriterApiFixture>
     {
         var baseRequest = new CreatePaymentRequest
         {
+            CorrelationId = "base-corr",
             SenderAccount = "COMMON-SRC",
             ReceiverAccount = "COMMON-DST",
             Amount = 100m,

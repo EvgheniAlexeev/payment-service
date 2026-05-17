@@ -65,7 +65,7 @@ public class WriterApiFixture : IAsyncLifetime
 
         // Create the message publisher ahead of time so we can capture it
         var publisherLogger = MockLogger("Publisher");
-        MessagePublisher = new InMemoryMessagePublisher(publisherLogger);
+        MessagePublisher = new InMemoryMessagePublisher(Microsoft.Extensions.Logging.Abstractions.NullLogger<InMemoryMessagePublisher>.Instance);
 
         _factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
