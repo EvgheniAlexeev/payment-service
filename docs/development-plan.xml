@@ -234,13 +234,13 @@
       </solution>
     </Phase-3>
 
-    <Phase-4 name="Account-Statements" status="pending">
+    <Phase-4 name="Account-Statements" status="completed">
       <goal>Add account transaction history query endpoint and MongoDB indexes.</goal>
       <solution name="PaymentServices">
-        <step-1 module="M-READER" status="pending" verification="V-M-READER">Add GET /api/accounts/{accountId}/transactions endpoint with FluentValidation, pagination, MongoDB compound index query.</step-1>
-        <step-2 module="M-MONGO" status="pending" verification="V-M-MONGO">Add MongoDB compound index on PaymentDocument.Request.SenderAccount and Request.ReceiverAccount with sort by CreatedAt desc.</step-2>
-        <step-3 module="M-READER" status="pending" verification="V-M-READER">Integration tests: statement query returns correct payments for sender, receiver, mixed; pagination; empty account.</step-3>
-        <step-4 module="M-SHARED" status="pending" verification="V-M-SHARED">Add TransactionHistoryResponse DTO with paged payment list.</step-4>
+        <step-1 module="M-READER" status="completed" verification="V-M-READER">Add GET /api/accounts/{accountId}/transactions endpoint with FluentValidation, pagination, MongoDB compound index query.</step-1>
+        <step-2 module="M-MONGO" status="completed" verification="V-M-MONGO">Add MongoDB compound index on PaymentDocument.Request.SenderAccount and Request.ReceiverAccount with sort by CreatedAt desc.</step-2>
+        <step-3 module="M-READER" status="completed" verification="V-M-READER">Integration tests: statement query returns correct payments for sender, receiver, mixed; pagination; empty account.</step-3>
+        <step-4 module="M-SHARED" status="completed" verification="V-M-SHARED">Add TransactionHistoryResponse DTO with paged payment list.</step-4>
       </solution>
     </Phase-4>
 

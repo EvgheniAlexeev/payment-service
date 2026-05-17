@@ -62,8 +62,22 @@ public static class IndexConfiguration
             Builders<PaymentDocument>.IndexKeys.Descending(p => p.CreatedAt),
             new CreateIndexOptions { Name = "idx_created_desc" });
 
+        // Index on SenderAccount for account statement queries
+        var senderAccountIndex = new CreateIndexModel<PaymentDocument>(
+            Builders<PaymentDocument>.IndexKeys
+                .Ascending(p => p.Request.SenderAccount)
+                .Descending(p => p.CreatedAt),
+            new CreateIndexOptions { Name = "idx_sender_account_created" });
+
+        // Index on ReceiverAccount for account statement queries
+        var receiverAccountIndex = new CreateIndexModel<PaymentDocument>(
+            Builders<PaymentDocument>.IndexKeys
+                .Ascending(p => p.Request.ReceiverAccount)
+                .Descending(p => p.CreatedAt),
+            new CreateIndexOptions { Name = "idx_receiver_account_created" });
+
         await collection.Indexes.CreateManyAsync(
-            new[] { correlationIndex, statusIndex, createdIndex }, ct);
+            new[] { correlationIndex, statusIndex, createdIndex, senderAccountIndex, receiverAccountIndex }, ct);
 
         logger?.LogInformation(
             "[PaymentService.Persistence][IndexConfiguration][BLOCK_INDEX_SETUP] " +
