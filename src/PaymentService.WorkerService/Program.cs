@@ -6,7 +6,7 @@
 // START_MODULE M_WORKER
 
 // START_MODULE M-WORKER
-// START_BLOCK_PROGRAM Program
+// START_BLOCK_MODULE
 // PURPOSE: Worker host entry point for PaymentService.Workers.
 //          Configures Wolverine, Prometheus metrics,
 //          and structured logging.
@@ -45,4 +45,4 @@ Console.WriteLine(
     "Worker started.");
 
 await host.RunAsync();
-// END_BLOCK_PROGRAM
+// END_BLOCK_MODULE
