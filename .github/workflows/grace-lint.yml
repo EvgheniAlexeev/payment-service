@@ -40,6 +40,16 @@ jobs:
           exit $EXIT_CODE
         continue-on-error: true
 
+      - name: Run GRACE Doxygen Contract Check
+        id: doxygen
+        run: |
+          python3 grace-tooling/grace-doxygen-check.py src --root . --json > doxygen-report.json
+          EXIT_CODE=$?
+          echo "doxygen_exit=$EXIT_CODE" >> $GITHUB_OUTPUT
+          cat doxygen-report.json
+          exit $EXIT_CODE
+        continue-on-error: true
+
       - name: Parse Lint Results
         if: always()
         run: |
