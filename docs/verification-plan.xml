@@ -65,18 +65,39 @@
     <V-M-READER MODULE="M-READER" PRIORITY="high">
       <test-files>
         <file>tests/PaymentService.Api.ReaderService.UnitTests/</file>
+        <file>tests/PaymentService.Api.ReaderService.IntegrationTests/</file>
       </test-files>
       <module-checks>
-        <check-1>dotnet test tests/PaymentService.Reader.UnitTests/</check-1>
-        <check-2>Reader GET endpoints respond with payment documents or 404</check-2>
+        <check-1>dotnet test tests/PaymentService.Api.ReaderService.UnitTests/</check-1>
+        <check-2>dotnet test tests/PaymentService.Api.ReaderService.IntegrationTests/</check-2>
+        <check-3>Reader GET endpoints respond with payment documents or 404</check-3>
+        <check-4>Reader GET transactions: date range defaults and validation</check-4>
       </module-checks>
       <scenarios>
         <scenario-1 kind="success">Query by correlationId returns payment</scenario-1>
         <scenario-2 kind="failure">Invalid correlationId returns 404</scenario-2>
+        <scenario-3 kind="success">Account statement: sender query returns outgoing payments</scenario-3>
+        <scenario-4 kind="success">Account statement: receiver query returns incoming payments</scenario-4>
+        <scenario-5 kind="success">Account statement: date range default to last 7 days</scenario-5>
+        <scenario-6 kind="failure">Account statement: date range exceeds year limit → 400</scenario-6>
       </scenarios>
       <required-log-markers>
-        <marker-1>[Reader][GetPaymentByCorrelationId][BLOCK_QUERY_MONGODB]</marker-1>
+        <marker-1>[PaymentService.Api.ReaderService][Features.GetTransactions][GetTransactionsEndpoint]</marker-1>
+        <marker-2>[PaymentService.Api.ReaderService][Features.GetTransactions][GetTransactionsHandler]</marker-2>
       </required-log-markers>
+      <doxygen-compliance>
+        <tag name="@invariant" source="GetTransactionsEndpoint">accountId non-empty max 64 chars → validated by GetTransactionsValidator</tag>
+        <tag name="@invariant" source="GetTransactionsEndpoint">Date range ≤ days-in-year → validated by GetTransactionsValidator</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">Payments sorted by CreatedAt desc → verified by sort test</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">Date range defaults → verified by default/from-only/to-only tests</tag>
+        <tag name="@invariant" source="GetTransactionsHandler">accountId matches Sender OR Receiver → verified by sender/receiver tests</tag>
+        <tag name="@invariant" source="GetTransactionsResponse">Direction outgoing/incoming → verified by mapper test</tag>
+        <tag name="@throws" source="GetTransactionsEndpoint">ValidationException → covered in validator</tag>
+        <tag name="@throws" source="GetTransactionsHandler">TimeoutException → covered in handler catch block</tag>
+        <tag name="@idempotent" source="GetTransactions*">YES → GET endpoint, idempotent by HTTP semantics</tag>
+        <tag name="@pre-condition" source="GetTransactionsEndpoint">accountId/skip/limit → validated by FluentValidation</tag>
+        <tag name="@post-condition" source="GetTransactionsEndpoint">result non-null → handler guarantees Response object</tag>
+      </doxygen-compliance>
       <wave-follow-up>Integration: Reader → MongoDB queries correct documents</wave-follow-up>
       <phase-follow-up>Load test: 1000 queries/s, p99 ≤100ms</phase-follow-up>
     </V-M-READER>
