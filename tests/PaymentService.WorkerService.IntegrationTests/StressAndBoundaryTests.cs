@@ -36,7 +36,7 @@ public class StressAndBoundaryTests
             var cid = $"BULK-{i:D4}";
             var request = TestDataFactory.CreateValidRequest(cid, amount: 10m * (i + 1));
 
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = request, IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = request, IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
             saga.State.Status = "ReservingFunds";
             saga.Handle(new FundsReserved { CorrelationId = cid, IsSuccessful = true, ReservationId = $"RSV-{cid}", Amount = request.Amount });
@@ -62,7 +62,7 @@ public class StressAndBoundaryTests
             var shouldPass = i % 2 == 0;
             var request = TestDataFactory.CreateValidRequest(cid, amount: 10m * (i + 1));
 
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = request, IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = request, IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = shouldPass, ErrorMessage = shouldPass ? null : "Bulk test failure" });
 
             if (shouldPass)
@@ -102,7 +102,7 @@ public class StressAndBoundaryTests
         {
             var saga = new PaymentService.Workers.Sagas.PaymentSaga(sagaLogger, dlq, metrics);
             var cid = $"VF-{i:D4}";
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = false, ErrorMessage = "Validate bulk fail" });
             saga.State.Status.Should().Be("Failed");
             validateFails.Add(cid);
@@ -113,7 +113,7 @@ public class StressAndBoundaryTests
         {
             var saga = new PaymentService.Workers.Sagas.PaymentSaga(sagaLogger, dlq, metrics);
             var cid = $"RF-{i:D4}";
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
             saga.State.Status = "ReservingFunds";
             saga.Handle(new FundsReserved { CorrelationId = cid, IsSuccessful = false, ErrorMessage = "Reserve bulk fail" });
@@ -126,7 +126,7 @@ public class StressAndBoundaryTests
         {
             var saga = new PaymentService.Workers.Sagas.PaymentSaga(sagaLogger, dlq, metrics);
             var cid = $"SF-{i:D4}";
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
             saga.State.Status = "ReservingFunds";
             saga.Handle(new FundsReserved { CorrelationId = cid, IsSuccessful = true, ReservationId = $"RSV-{cid}", Amount = 10m });
@@ -140,7 +140,7 @@ public class StressAndBoundaryTests
         {
             var saga = new PaymentService.Workers.Sagas.PaymentSaga(sagaLogger, dlq, metrics);
             var cid = $"OK-{i:D4}";
-            saga.Handle(new PaymentCommand { CorrelationId = cid, Request = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
+            saga.Handle(new PaymentCommand { CorrelationId = cid, PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 10m), IdempotencyKey = $"ID-{cid}" });
             saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
             saga.State.Status = "ReservingFunds";
             saga.Handle(new FundsReserved { CorrelationId = cid, IsSuccessful = true, ReservationId = $"RSV-{cid}", Amount = 10m });
@@ -180,7 +180,7 @@ public class StressAndBoundaryTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = cid,
-            Request = TestDataFactory.CreateValidRequest(cid, amount: decimalAmount),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: decimalAmount),
             IdempotencyKey = $"ID-{cid}",
         });
 
@@ -204,7 +204,7 @@ public class StressAndBoundaryTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = cid,
-            Request = TestDataFactory.CreateValidRequest(cid, amount: 444.44m, currency: "GBP"),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 444.44m, currency: "GBP"),
             IdempotencyKey = "ID-PERSIST",
         });
 
@@ -242,7 +242,7 @@ public class StressAndBoundaryTests
         var dlq1 = new CapturingDLQPublisher();
         var (_, _, _, slog1, _, met1) = TestFixtureFactory.CreateLoggersAndMetrics();
         var s1 = new PaymentService.Workers.Sagas.PaymentSaga(slog1, dlq1, met1);
-        s1.Handle(new PaymentCommand { CorrelationId = "EC-V", Request = TestDataFactory.CreateValidRequest("EC-V"), IdempotencyKey = "ID" });
+        s1.Handle(new PaymentCommand { CorrelationId = "EC-V", PaymentRequest = TestDataFactory.CreateValidRequest("EC-V"), IdempotencyKey = "ID" });
         s1.Handle(new PaymentValidated { CorrelationId = "EC-V", IsValid = false });
         s1.State.ErrorCode.Should().Be("VALIDATION_FAILED");
 
@@ -250,7 +250,7 @@ public class StressAndBoundaryTests
         var dlq2 = new CapturingDLQPublisher();
         var (_, _, _, slog2, _, met2) = TestFixtureFactory.CreateLoggersAndMetrics();
         var s2 = new PaymentService.Workers.Sagas.PaymentSaga(slog2, dlq2, met2);
-        s2.Handle(new PaymentCommand { CorrelationId = "EC-R", Request = TestDataFactory.CreateValidRequest("EC-R"), IdempotencyKey = "ID" });
+        s2.Handle(new PaymentCommand { CorrelationId = "EC-R", PaymentRequest = TestDataFactory.CreateValidRequest("EC-R"), IdempotencyKey = "ID" });
         s2.Handle(new PaymentValidated { CorrelationId = "EC-R", IsValid = true });
         s2.State.Status = "ReservingFunds";
         s2.Handle(new FundsReserved { CorrelationId = "EC-R", IsSuccessful = false, ErrorMessage = "Funds" });
@@ -260,7 +260,7 @@ public class StressAndBoundaryTests
         var dlq3 = new CapturingDLQPublisher();
         var (_, _, _, slog3, _, met3) = TestFixtureFactory.CreateLoggersAndMetrics();
         var s3 = new PaymentService.Workers.Sagas.PaymentSaga(slog3, dlq3, met3);
-        s3.Handle(new PaymentCommand { CorrelationId = "EC-S", Request = TestDataFactory.CreateValidRequest("EC-S"), IdempotencyKey = "ID" });
+        s3.Handle(new PaymentCommand { CorrelationId = "EC-S", PaymentRequest = TestDataFactory.CreateValidRequest("EC-S"), IdempotencyKey = "ID" });
         s3.Handle(new PaymentValidated { CorrelationId = "EC-S", IsValid = true });
         s3.State.Status = "ReservingFunds";
         s3.Handle(new FundsReserved { CorrelationId = "EC-S", IsSuccessful = true, ReservationId = "RSV", Amount = 100m });
@@ -287,7 +287,7 @@ public class StressAndBoundaryTests
                 saga.Handle(new PaymentCommand
                 {
                     CorrelationId = cid,
-                    Request = TestDataFactory.CreateValidRequest(cid, amount: 5m * (i + 1)),
+                    PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: 5m * (i + 1)),
                     IdempotencyKey = $"ID-PAR-{i:D4}",
                 });
                 saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });
@@ -474,7 +474,7 @@ public class StressAndBoundaryTests
         saga.Handle(new PaymentCommand
         {
             CorrelationId = cid,
-            Request = TestDataFactory.CreateValidRequest(cid, amount: amount, currency: currency),
+            PaymentRequest = TestDataFactory.CreateValidRequest(cid, amount: amount, currency: currency),
             IdempotencyKey = $"ID-{cid}",
         });
         saga.Handle(new PaymentValidated { CorrelationId = cid, IsValid = true });

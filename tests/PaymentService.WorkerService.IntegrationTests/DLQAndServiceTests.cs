@@ -12,6 +12,7 @@
 // SEMANTIC_TAG: [BLOCK_TEST_DLQ] DLQ publisher and service tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Workers.Sagas;
 using PaymentService.Workers.Commands;
 using PaymentService.Workers.Events;
 using Microsoft.Extensions.Logging;

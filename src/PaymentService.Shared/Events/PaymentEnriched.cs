@@ -21,6 +21,8 @@ public record PaymentEnriched : IEvent
 {
     public string CorrelationId { get; init; } = string.Empty;
 
+    public string? EnrichmentData { get; init; }
+
     public string? SenderName { get; init; }
 
     public string? ReceiverName { get; init; }

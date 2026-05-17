@@ -13,6 +13,8 @@
 // SEMANTIC_TAG: [BLOCK_TEST_HANDLERS] Step handler validation tests
 namespace PaymentService.Workers.IntegrationTests;
 
+using PaymentService.Shared.Dtos;
+using PaymentService.Workers.Services;
 using PaymentService.Workers.Commands;
 using PaymentService.Workers.Events;
 using PaymentService.Workers.Steps;

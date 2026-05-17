@@ -222,7 +222,7 @@ public class DockerIntegrationTests
         sagas.Should().HaveCount(paymentCount);
         sagas.Should().AllSatisfy(s => s.State.Status.Should().Be("Settled"));
         dlq.PublishedEvents.Should().BeEmpty();
-        sw.ElapsedMilliseconds.Should().BeLessThan(TimeSpan.FromSeconds(10).TotalMilliseconds,
+        sw.ElapsedMilliseconds.Should().BeLessThan((long)TimeSpan.FromSeconds(10).TotalMilliseconds,
             "50 saga flows should complete within 10 seconds");
     }
 

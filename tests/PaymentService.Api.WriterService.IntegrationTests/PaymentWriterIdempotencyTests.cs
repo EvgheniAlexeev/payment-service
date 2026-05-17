@@ -51,7 +51,7 @@ public class PaymentWriterIdempotencyTests : IClassFixture<WriterApiFixture>
 
         var payment = await _fixture.GetPaymentAsync("triple-idem");
         payment.Should().NotBeNull();
-        payment!.Amount.Should().Be(250m);
+        payment!.Request.Amount.Should().Be(250m);
 
         // Only one command should be published
         _fixture.GetPublishedCommands().Should().HaveCount(1);
@@ -120,7 +120,7 @@ public class PaymentWriterIdempotencyTests : IClassFixture<WriterApiFixture>
         await _fixture.Client.PostAsJsonAsync("/api/payment", modifiedRequest);
 
         var payment = await _fixture.GetPaymentAsync("idem-mod");
-        payment!.Amount.Should().Be(500m, "Original amount should be preserved on duplicate");
+        payment!.Request.Amount.Should().Be(500m, "Original amount should be preserved on duplicate");
     }
 
     [Fact]

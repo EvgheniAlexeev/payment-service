@@ -26,7 +26,7 @@ public class SharedEventTests
         var failed = new PaymentFailed
         {
             CorrelationId = "SHARED-FAIL-001",
-            OriginalPaymentRequest = request,
+            OriginalRequest = request,
             FailedStep = "Validate",
             ErrorMessage = "Compliance violation",
             ErrorCode = "COMPLIANCE_VIOLATION",
@@ -216,7 +216,7 @@ public class PaymentCommandTests
         };
 
         command.CorrelationId.Should().Be(request.CorrelationId);
-        command.Request.Should().BeEquivalentTo(request);
+        command.PaymentRequest.Should().BeEquivalentTo(request);
         command.IdempotencyKey.Should().Be("idem-key-12345");
     }
 
@@ -225,7 +225,7 @@ public class PaymentCommandTests
     {
         var command = new PaymentCommand();
         command.CorrelationId.Should().BeEmpty();
-        command.Request.Should().BeNull();
+        command.PaymentRequest.Should().BeNull();
         command.IdempotencyKey.Should().BeEmpty();
     }
 
