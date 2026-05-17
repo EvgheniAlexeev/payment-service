@@ -52,7 +52,7 @@ public class PaymentQueryController : ControllerBase
     /// <para><strong>@log-event:</strong> reader.controller.get-payment-success {correlationId}</para>
     /// <para><strong>@log-event:</strong> reader.controller.get-payment-error {correlationId} {error}</para>
     /// <para><strong>@trace-span:</strong> reader.get-payment</para>
-    /// <para><strong>@pre-condition:</strong> correlationId != null && correlationId.Length > 0</para>
+    /// <para><strong>@pre-condition:</strong> correlationId != null &amp;&amp; correlationId.Length > 0</para>
     /// <para><strong>@post-condition:</strong> result != null</para>
     /// <para><strong>@complexity:</strong> O(1) (indexed query)</para>
     /// <para><strong>@idempotent:</strong> YES</para>
@@ -105,7 +105,7 @@ public class PaymentQueryController : ControllerBase
     /// <para><strong>@log-event:</strong> reader.controller.get-payments-by-status-start {status} {page}</para>
     /// <para><strong>@log-event:</strong> reader.controller.get-payments-by-status-result {status} {count}</para>
     /// <para><strong>@trace-span:</strong> reader.get-payments-by-status</para>
-    /// <para><strong>@pre-condition:</strong> status != null && page > 0 && pageSize > 0</para>
+    /// <para><strong>@pre-condition:</strong> status != null &amp;&amp; page > 0 &amp;&amp; pageSize > 0</para>
     /// <para><strong>@complexity:</strong> O(log n + k) where k = result set size</para>
     /// <para><strong>@idempotent:</strong> YES</para>
     /// </remarks>
