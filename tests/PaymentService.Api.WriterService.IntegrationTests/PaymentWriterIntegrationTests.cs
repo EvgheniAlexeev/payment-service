@@ -97,7 +97,7 @@ public class PaymentWriterIntegrationTests : IClassFixture<WriterApiFixture>
         commands.Should().HaveCount(1);
         commands[0].CorrelationId.Should().Be("new-saga");
         commands[0].IdempotencyKey.Should().Be("new-saga");
-        commands[0].Request.Amount.Should().Be(1000m);
+        commands[0].PaymentRequest.Amount.Should().Be(1000m);
     }
 
     [Fact]

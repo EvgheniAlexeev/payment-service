@@ -228,13 +228,13 @@ public class PaymentWriterConcurrencyTests : IClassFixture<WriterApiFixture>
         await _fixture.Client.PostAsJsonAsync("/api/payment", request);
 
         var cmd = _fixture.GetPublishedCommands()[0];
-        cmd.Request.CorrelationId.Should().Be("full-cmd");
-        cmd.Request.SenderAccount.Should().Be("BANK-A");
-        cmd.Request.ReceiverAccount.Should().Be("BANK-B");
-        cmd.Request.Amount.Should().Be(9876.54m);
-        cmd.Request.Currency.Should().Be("GBP");
-        cmd.Request.ValueDate.Should().Be(new DateTime(2026, 8, 15));
-        cmd.Request.Description.Should().Be("Quarterly settlement");
+        cmd.PaymentRequest.CorrelationId.Should().Be("full-cmd");
+        cmd.PaymentRequest.SenderAccount.Should().Be("BANK-A");
+        cmd.PaymentRequest.ReceiverAccount.Should().Be("BANK-B");
+        cmd.PaymentRequest.Amount.Should().Be(9876.54m);
+        cmd.PaymentRequest.Currency.Should().Be("GBP");
+        cmd.PaymentRequest.ValueDate.Should().Be(new DateTime(2026, 8, 15));
+        cmd.PaymentRequest.Description.Should().Be("Quarterly settlement");
     }
 
     [Fact]

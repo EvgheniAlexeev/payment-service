@@ -63,20 +63,20 @@ public class PaymentSaga : Wolverine.Saga
         _logger.LogInformation(
             "[PaymentService.Workers][PaymentSaga][BLOCK_SAGA_START] " +
             "Starting payment saga for {correlationId}, amount={amount}, currency={currency}",
-            command.CorrelationId, command.Request.Amount, command.Request.Currency);
+            command.CorrelationId, command.PaymentRequest.Amount, command.PaymentRequest.Currency);
 
         _metrics.IncrementSagaStarted();
 
         State.Id = command.CorrelationId;
         State.CorrelationId = command.CorrelationId;
-        State.PaymentRequest = command.Request;
+        State.PaymentRequest = command.PaymentRequest;
         State.Status = "Validating";
         State.CreatedAt = DateTime.UtcNow;
 
         return new ValidatePaymentCommand
         {
             CorrelationId = command.CorrelationId,
-            PaymentRequest = command.Request,
+            PaymentRequest = command.PaymentRequest,
             CreatedAt = DateTime.UtcNow,
         };
     }
