@@ -35,12 +35,27 @@
         <log-marker>[Worker][PaySaga][BLOCK_COMPENSATE]</log-marker>
       </required-signals>
     </VF-003>
+    <VF-004 NAME="SagaDLQOnFailure" USE_CASES="UC-003" DATA_FLOW="DF-SAGA-LIFECYCLE" PRIORITY="critical">
+      <scenario>Payment saga fails at any step (validation, enrichment, settlement)</scenario>
+      <expected-outcome>Saga fails gracefully, PaymentFailed event published to DLQ with full context (original request, failed step, error), NO automatic compensation</expected-outcome>
+      <required-signals>
+        <log-marker>[Worker][PaymentSaga][BLOCK_SAGA_FAILURE]</log-marker>
+      </required-signals>
+    </VF-004>
+
+    <VF-005 NAME="SagaIdempotency" USE_CASES="UC-004" DATA_FLOW="DF-SAGA-LIFECYCLE" PRIORITY="critical">
+      <scenario>Duplicate PaymentCommand with same IdempotencyKey — saga skips re-execution</scenario>
+      <expected-outcome>If saga already completed, Handle returns PaymentSettled without re-executing steps. Idempotency enforced by saga state lookup.</expected-outcome>
+      <required-signals>
+        <log-marker>[Worker][PaymentSaga][BLOCK_IDEMPOTENCY_CHECK]</log-marker>
+      </required-signals>
+    </VF-005>
   </CriticalFlows>
 
   <ModuleVerification>
     <V-M-READER MODULE="M-READER" PRIORITY="high">
       <test-files>
-        <file>tests/PaymentService.Reader.UnitTests/</file>
+        <file>tests/PaymentService.Api.ReaderService.UnitTests/</file>
       </test-files>
       <module-checks>
         <check-1>dotnet test tests/PaymentService.Reader.UnitTests/</check-1>
@@ -59,7 +74,7 @@
 
     <V-M-WRITER MODULE="M-WRITER" PRIORITY="high">
       <test-files>
-        <file>tests/PaymentService.Writer.UnitTests/</file>
+        <file>tests/PaymentService.Api.WriterService.UnitTests/</file>
       </test-files>
       <module-checks>
         <check-1>dotnet test tests/PaymentService.Writer.UnitTests/</check-1>
@@ -95,7 +110,7 @@
 
     <V-M-WORKER MODULE="M-WORKER" PRIORITY="critical">
       <test-files>
-        <file>tests/PaymentService.Worker.UnitTests/</file>
+        <file>tests/PaymentService.WorkerService.UnitTests/</file>
       </test-files>
       <module-checks>
         <check-1>dotnet test tests/PaymentService.Worker.UnitTests/</check-1>
