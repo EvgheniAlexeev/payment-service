@@ -23,6 +23,8 @@ public record PaymentFailed : IEvent
 {
     public string CorrelationId { get; init; } = string.Empty;
 
+    public PaymentService.Shared.Dtos.PaymentRequestDto? OriginalRequest { get; init; }
+
     public string FailedStep { get; init; } = string.Empty;
 
     public string ErrorMessage { get; init; } = string.Empty;

@@ -49,7 +49,7 @@ public class CommandEventSerializationTests
         deserialized.Should().NotBeNull();
         deserialized!.IdempotencyKey.Should().Be("key-123");
         deserialized.CorrelationId.Should().Be("corr-123");
-        deserialized.Request.Amount.Should().Be(500m);
+        deserialized.PaymentRequest.Amount.Should().Be(500m);
     }
 
     [Fact]

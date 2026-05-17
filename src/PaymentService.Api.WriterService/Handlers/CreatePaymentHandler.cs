@@ -109,7 +109,7 @@ public class CreatePaymentHandler : ICreatePaymentHandler
             {
                 IdempotencyKey = request.CorrelationId,
                 CorrelationId = request.CorrelationId,
-                Request = paymentDocument.Request
+                PaymentRequest = paymentDocument.Request
             };
 
             await _publisher.PublishAsync(command, ct);

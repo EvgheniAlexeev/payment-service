@@ -18,6 +18,7 @@ using PaymentService.Workers.Configuration;
 using PaymentService.Workers.Metrics;
 using PaymentService.Workers.Sagas;
 using PaymentService.Workers.Services;
+using PaymentService.Workers.Services.Implementations;
 using PaymentService.Workers.Steps;
 using Polly;
 using Polly.Extensions.Http;

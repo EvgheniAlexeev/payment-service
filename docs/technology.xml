@@ -38,7 +38,7 @@
     <preferred-persistence>MongoDB (payment documents, saga state, idempotency ledger)</preferred-persistence>
     <preferred-test-library>xUnit.net + FakeItEasy</preferred-test-library>
     <preferred-observability-library>Serilog (structured JSON, CorrelationId enricher, PII redaction)</preferred-observability-library>
-    <discouraged-surface reason="Avoids lock-in to a single MQ SDK; use Dapr pub/sub abstraction.">Direct RabbitMQ/Kafka client SDK in Reader/Writer code</discouraged-surface>
+    <discouraged-surface reason="Avoids lock-in to a single MQ SDK; use Dapr pub/sub abstraction.">Direct MQ client SDK in Reader/Writer code (use Dapr pub/sub abstraction)</discouraged-surface>
   </PreferredAgentStack>
 
   <Testing>
@@ -72,6 +72,6 @@
   </AutonomyPolicy>
 
   <DeliveryShape>
-    <shape>Kubernetes-native: Reader Deployment (3+ read-only replicas, stateless), Writer Deployment (3+ command gateway replicas), Worker Deployment (3-N replicas per MQ partition). Each pod has Dapr sidecar. MongoDB StatefulSet with replica-set. MQ broker (Kafka or RabbitMQ) managed by Dapr. GitOps-driven deployment via centralized repo.</shape>
+    <shape>Kubernetes-native: Reader Deployment (3+ read-only replicas, stateless), Writer Deployment (3+ command gateway replicas), Worker Deployment (3-N replicas per MQ partition). Each pod has Dapr sidecar. MongoDB StatefulSet with replica-set. Dapr pub/sub (Kafka preferred for partition scaling). GitOps-driven deployment via centralized repo.</shape>
   </DeliveryShape>
 </TechnologyStack>

@@ -50,10 +50,10 @@ public class PaymentWriterSagaPublishingTests : IClassFixture<WriterApiFixture>
         commands.Should().HaveCount(1);
         var cmd = commands[0];
         cmd.CorrelationId.Should().Be("full-req");
-        cmd.Request.SenderAccount.Should().Be("SRC-X");
-        cmd.Request.ReceiverAccount.Should().Be("DST-Y");
-        cmd.Request.Amount.Should().Be(1234.56m);
-        cmd.Request.Currency.Should().Be("EUR");
+        cmd.PaymentRequest.SenderAccount.Should().Be("SRC-X");
+        cmd.PaymentRequest.ReceiverAccount.Should().Be("DST-Y");
+        cmd.PaymentRequest.Amount.Should().Be(1234.56m);
+        cmd.PaymentRequest.Currency.Should().Be("EUR");
     }
 
     [Fact]

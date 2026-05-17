@@ -101,7 +101,7 @@ public class ModelTests
 
         cmd.IdempotencyKey.Should().BeEmpty();
         cmd.CorrelationId.Should().BeEmpty();
-        cmd.Request.Should().NotBeNull();
+        cmd.PaymentRequest.Should().NotBeNull();
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class ModelTests
         {
             IdempotencyKey = "idem-123",
             CorrelationId = "corr-123",
-            Request = new PaymentRequestDto
+            PaymentRequest = new PaymentRequestDto
             {
                 CorrelationId = "corr-123",
                 Amount = 500m,
@@ -121,7 +121,7 @@ public class ModelTests
 
         cmd.IdempotencyKey.Should().Be("idem-123");
         cmd.CorrelationId.Should().Be("corr-123");
-        cmd.Request.Amount.Should().Be(500m);
+        cmd.PaymentRequest.Amount.Should().Be(500m);
     }
 
     [Fact]

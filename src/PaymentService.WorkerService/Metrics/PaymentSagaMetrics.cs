@@ -95,7 +95,7 @@ public class PaymentSagaMetrics
             "Histogram of reserved amounts.",
             new HistogramConfiguration
             {
-                Buckets = new[] { 1, 10, 100, 1000, 10000, 100000, 1000000 },
+                Buckets = new double[] { 1, 10, 100, 1000, 10000, 100000, 1000000 },
             });
 
         _settlementAmount = Metrics.CreateHistogram(
@@ -103,7 +103,7 @@ public class PaymentSagaMetrics
             "Histogram of settled amounts.",
             new HistogramConfiguration
             {
-                Buckets = new[] { 1, 10, 100, 1000, 10000, 100000, 1000000 },
+                Buckets = new double[] { 1, 10, 100, 1000, 10000, 100000, 1000000 },
             });
 
         _sagasInProgress = Metrics.CreateGauge(
