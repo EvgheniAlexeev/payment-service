@@ -122,6 +122,8 @@ public interface IPaymentDocumentRepository
     /// <remarks>
     /// <para><strong>@contract-action:</strong> GetByAccountAsync</para>
     /// <para><strong>@param accountId:</strong> Account identifier (matches SenderAccount or ReceiverAccount)</para>
+    /// <para><strong>@param dateFrom:</strong> Start date inclusive (UTC). If null, defaults to 7 days ago.</para>
+    /// <para><strong>@param dateTo:</strong> End date inclusive (UTC). If null, defaults to current date.</para>
     /// <para><strong>@param skip:</strong> Result offset for pagination</para>
     /// <para><strong>@param limit:</strong> Maximum results to return</para>
     /// <para><strong>@return:</strong> Tuple of (payments list, total count)</para>
@@ -129,5 +131,6 @@ public interface IPaymentDocumentRepository
     /// <para><strong>@idempotent:</strong> YES</para>
     /// </remarks>
     Task<(List<PaymentDocument> Payments, long TotalCount)> GetByAccountAsync(
-        string accountId, int skip = 0, int limit = 20, CancellationToken ct = default);
+        string accountId, DateTime? dateFrom = null, DateTime? dateTo = null,
+        int skip = 0, int limit = 20, CancellationToken ct = default);
 }

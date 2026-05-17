@@ -117,24 +117,48 @@ public class PaymentDocumentRepository : IPaymentDocumentRepository
     }
 
     public async Task<(List<PaymentDocument> Payments, long TotalCount)> GetByAccountAsync(
-        string accountId, int skip = 0, int limit = 20, CancellationToken ct = default)
+        string accountId, DateTime? dateFrom = null, DateTime? dateTo = null,
+        int skip = 0, int limit = 20, CancellationToken ct = default)
     {
         // START_BLOCK_GET_BY_ACCOUNT
         _logger.LogInformation(
             "[PaymentService.Persistence][PaymentDocumentRepository][BLOCK_GET_BY_ACCOUNT] " +
-            "Querying payments for account {AccountId} (skip={Skip}, limit={Limit})",
-            accountId, skip, limit);
+            "Querying payments for account {AccountId} " +
+            "(dateFrom={DateFrom}, dateTo={DateTo}, skip={Skip}, limit={Limit})",
+            accountId,
+            dateFrom?.ToString("yyyy-MM-dd") ?? "null",
+            dateTo?.ToString("yyyy-MM-dd") ?? "null",
+            skip, limit);
 
         var senderFilter = Builders<PaymentDocument>.Filter.Eq(p => p.Request.SenderAccount, accountId);
         var receiverFilter = Builders<PaymentDocument>.Filter.Eq(p => p.Request.ReceiverAccount, accountId);
-        var filter = Builders<PaymentDocument>.Filter.Or(senderFilter, receiverFilter);
+        var accountFilter = Builders<PaymentDocument>.Filter.Or(senderFilter, receiverFilter);
 
-        var totalCount = await _context.Payments.CountDocumentsAsync(filter, null, ct);
+        // Add date range filter
+        var finalFilter = accountFilter;
+        if (dateFrom.HasValue || dateTo.HasValue)
+        {
+            var dateFilters = new List<FilterDefinition<PaymentDocument>>();
+
+            if (dateFrom.HasValue)
+                dateFilters.Add(Builders<PaymentDocument>.Filter.Gte(p => p.CreatedAt, dateFrom.Value));
+
+            if (dateTo.HasValue)
+            {
+                // Inclusive end-of-day for DateTo
+                var endOfDay = dateTo.Value.Date.AddDays(1).AddTicks(-1);
+                dateFilters.Add(Builders<PaymentDocument>.Filter.Lte(p => p.CreatedAt, endOfDay));
+            }
+
+            finalFilter = accountFilter & Builders<PaymentDocument>.Filter.And(dateFilters);
+        }
+
+        var totalCount = await _context.Payments.CountDocumentsAsync(finalFilter, null, ct);
 
         var sort = Builders<PaymentDocument>.Sort.Descending(p => p.CreatedAt);
 
         var payments = await _context.Payments
-            .Find(filter)
+            .Find(finalFilter)
             .Sort(sort)
             .Skip(skip)
             .Limit(limit)

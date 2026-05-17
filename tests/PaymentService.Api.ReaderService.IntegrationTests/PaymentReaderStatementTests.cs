@@ -142,7 +142,6 @@ public class PaymentReaderStatementTests : IClassFixture<ApiIntegrationFixture>
 
         await _fixture.SeedPaymentsAsync(payments);
 
-        // Query first page (limit 3)
         var page1 = await _fixture.Client.GetAsync(
             $"/api/accounts/{accountId}/transactions?skip=0&limit=3");
         page1.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -150,14 +149,12 @@ public class PaymentReaderStatementTests : IClassFixture<ApiIntegrationFixture>
         result1!.Transactions.Should().HaveCount(3);
         result1.TotalCount.Should().Be(10);
 
-        // Query second page
         var page2 = await _fixture.Client.GetAsync(
             $"/api/accounts/{accountId}/transactions?skip=3&limit=3");
         var result2 = await page2.Content.ReadFromJsonAsync<GetTransactionsResponse>();
         result2!.Transactions.Should().HaveCount(3);
         result2.TotalCount.Should().Be(10);
 
-        // Verify pages are different
         result1.Transactions[0].CorrelationId
             .Should().NotBe(result2.Transactions[0].CorrelationId);
     }
@@ -214,5 +211,134 @@ public class PaymentReaderStatementTests : IClassFixture<ApiIntegrationFixture>
         result.Transactions[0].CorrelationId.Should().Be("TXN-SORT-03");
         result.Transactions[1].CorrelationId.Should().Be("TXN-SORT-02");
         result.Transactions[2].CorrelationId.Should().Be("TXN-SORT-01");
+    }
+
+    // ──────────────── Date Range: Default (7 days) ────────────────
+
+    [Fact]
+    public async Task GetTransactions_DefaultDateRange_Last7Days()
+    {
+        var accountId = "ACC-DATE-7D";
+        var now = DateTime.UtcNow;
+
+        // Within last 7 days (should be returned by default)
+        await _fixture.SeedPaymentAsync(CreatePayment(
+            "TXN-7D-WITHIN", accountId, "OTHER", 100m,
+            createdAt: now.AddDays(-3)));
+
+        // Outside last 7 days (should NOT be returned by default)
+        await _fixture.SeedPaymentAsync(CreatePayment(
+            "TXN-7D-OLD", accountId, "OTHER", 200m,
+            createdAt: now.AddDays(-10)));
+
+        // No date params → defaults to last 7 days
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions?skip=0&limit=20");
+
+        var result = await response.Content.ReadFromJsonAsync<GetTransactionsResponse>();
+        result!.Transactions.Should().ContainSingle();
+        result.Transactions[0].CorrelationId.Should().Be("TXN-7D-WITHIN");
+    }
+
+    // ──────────────── Date Range: Explicit period ────────────────
+
+    [Fact]
+    public async Task GetTransactions_ExplicitDateRange_FiltersCorrectly()
+    {
+        var accountId = "ACC-DATE-EXP";
+        var baseDate = new DateTime(2026, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        await _fixture.SeedPaymentsAsync(
+            CreatePayment("TXN-EXP-01", accountId, "OTHER", 100m,
+                createdAt: baseDate.AddDays(-5)),  // May 27
+            CreatePayment("TXN-EXP-02", accountId, "OTHER", 200m,
+                createdAt: baseDate),               // Jun 1
+            CreatePayment("TXN-EXP-03", accountId, "OTHER", 300m,
+                createdAt: baseDate.AddDays(5)));   // Jun 6
+
+        // Query range: Jun 1 - Jun 6
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions" +
+            $"?dateFrom=2026-06-01&dateTo=2026-06-06&skip=0&limit=20");
+
+        var result = await response.Content.ReadFromJsonAsync<GetTransactionsResponse>();
+        result!.Transactions.Should().HaveCount(2);
+        result.Transactions.Should().Contain(t => t.CorrelationId == "TXN-EXP-02");
+        result.Transactions.Should().Contain(t => t.CorrelationId == "TXN-EXP-03");
+    }
+
+    // ──────────────── Date Range: DateFrom only → to current ────────────────
+
+    [Fact]
+    public async Task GetTransactions_DateFromOnly_DefaultsDateToNow()
+    {
+        var accountId = "ACC-DATE-FROM";
+        var now = DateTime.UtcNow;
+
+        await _fixture.SeedPaymentsAsync(
+            CreatePayment("TXN-FROM-01", accountId, "OTHER", 100m,
+                createdAt: now.AddDays(-1)),
+            CreatePayment("TXN-FROM-02", accountId, "OTHER", 200m,
+                createdAt: now.AddDays(-60))); // outside range
+
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions" +
+            $"?dateFrom={now.AddDays(-7):yyyy-MM-dd}&skip=0&limit=20");
+
+        var result = await response.Content.ReadFromJsonAsync<GetTransactionsResponse>();
+        result!.Transactions.Should().ContainSingle();
+        result.Transactions[0].CorrelationId.Should().Be("TXN-FROM-01");
+    }
+
+    // ──────────────── Date Range: DateTo only → from Jan 1 ────────────────
+
+    [Fact]
+    public async Task GetTransactions_DateToOnly_DefaultsFromJan1()
+    {
+        var accountId = "ACC-DATE-TO";
+        var thisYear = DateTime.UtcNow.Year;
+
+        await _fixture.SeedPaymentsAsync(
+            CreatePayment("TXN-TO-01", accountId, "OTHER", 100m,
+                createdAt: new DateTime(thisYear, 3, 1, 0, 0, 0, DateTimeKind.Utc)),
+            CreatePayment("TXN-TO-02", accountId, "OTHER", 200m,
+                createdAt: new DateTime(thisYear - 1, 12, 1, 0, 0, 0, DateTimeKind.Utc))); // last year
+
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions" +
+            $"?dateTo={DateTime.UtcNow:yyyy-MM-dd}&skip=0&limit=20");
+
+        var result = await response.Content.ReadFromJsonAsync<GetTransactionsResponse>();
+        result!.Transactions.Should().ContainSingle();
+        result.Transactions[0].CorrelationId.Should().Be("TXN-TO-01");
+    }
+
+    // ──────────────── Date Range: Exceeds year ────────────────
+
+    [Fact]
+    public async Task GetTransactions_DateRangeExceedsYear_Returns400()
+    {
+        var accountId = "ACC-DATE-OVER";
+        var daysInYear = DateTime.IsLeapYear(2026) ? 366 : 365;
+
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions" +
+            $"?dateFrom=2026-01-01&dateTo=2026-12-31&skip=0&limit=20");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    // ──────────────── Date Range: DateFrom > DateTo ────────────────
+
+    [Fact]
+    public async Task GetTransactions_DateFromAfterDateTo_Returns400()
+    {
+        var accountId = "ACC-DATE-INV";
+
+        var response = await _fixture.Client.GetAsync(
+            $"/api/accounts/{accountId}/transactions" +
+            $"?dateFrom=2026-06-10&dateTo=2026-06-01&skip=0&limit=20");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
