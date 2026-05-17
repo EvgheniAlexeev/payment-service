@@ -241,6 +241,9 @@ def check_idempotent(tag_value, content, filepath, modules=None):
         # Skip for interfaces — idempotency is a caller concern
         if filepath.endswith("I" + os.path.basename(filepath)[1:]) or "IUserCacheRepository" in filepath:
             return ("skip", "Interface — idempotency in caller")
+        # Skip if explicitly documented as not-pure-but-idempotent (cache reads, etc.)
+        if "@pure:\s*NO" in content:
+            return ("skip", "Not pure but documented idempotent — trust annotation")
         if not any(p in content for p in ["IdempotencyKey", "Idempotency", "idempotency", "GET"]):
             return ("pass", "Idempotent: idempotency pattern found")
         return ("warn", "Declared @idempotent: YES but no idempotency pattern found")
