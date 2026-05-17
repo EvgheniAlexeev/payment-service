@@ -76,6 +76,23 @@
       <phase-follow-up>Load test: 1000 POST/s, verify partition key routing</phase-follow-up>
     </V-M-WRITER>
 
+    <V-M-SHARED MODULE="M-SHARED" PRIORITY="high">
+      <test-files>
+        <file>tests/PaymentService.Shared.UnitTests/</file>
+      </test-files>
+      <module-checks>
+        <check-1>dotnet test tests/PaymentService.Shared.UnitTests/</check-1>
+        <check-2>All DTOs, commands, events, models serialize/deserialize correctly</check-2>
+        <check-3>All validators pass for valid and invalid inputs</check-3>
+      </module-checks>
+      <scenarios>
+        <scenario-1 kind="success">PaymentRequestDto deserialized from JSON</scenario-1>
+        <scenario-2 kind="failure">Invalid JSON rejected with validation errors</scenario-2>
+      </scenarios>
+      <wave-follow-up>DTOs used consistently across Reader, Writer, Worker, Persistence</wave-follow-up>
+      <phase-follow-up>None (static contracts)</phase-follow-up>
+    </V-M-SHARED>
+
     <V-M-WORKER MODULE="M-WORKER" PRIORITY="critical">
       <test-files>
         <file>tests/PaymentService.Worker.UnitTests/</file>

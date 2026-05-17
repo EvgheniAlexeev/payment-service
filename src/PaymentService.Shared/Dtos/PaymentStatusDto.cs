@@ -9,14 +9,12 @@ namespace PaymentService.Shared.Dtos;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Value object returned by Reader API for payment status queries</para>
-/// <para><strong>@module-type:</strong> UTILITY (pure data contract)</para>
-/// <para><strong>@depends:</strong> IQueryResponse interface (implicit)</para>
-/// <para><strong>@domain-concept:</strong> PaymentStatusDto (aggregate snapshot)</para>
 /// <para><strong>@invariant:</strong> CorrelationId maps to exactly one payment document</para>
 /// <para><strong>@invariant:</strong> Status in {Pending, Validating, Enriching, Settling, Settled, Failed}</para>
 /// <para><strong>@invariant:</strong> SagaState consistent with Status transition</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>

@@ -13,12 +13,19 @@
 // SEMANTIC_TAG: [BLOCK_SERVICE_IMPL] Default ISettlementService (HTTP)
 namespace PaymentService.Workers.Services.Implementations;
 
+/// <summary>
+/// Service implementation for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (service implementation)</para>
+/// <para><strong>@purpose:</strong> Service implementation for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All operations logged with correlation IDs for traceability</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 
-/// <summary>
-/// Default HTTP-based settlement service implementation.
-/// </summary>
 public class DefaultSettlementService : ISettlementService
 {
     private readonly IHttpClientFactory _httpClientFactory;

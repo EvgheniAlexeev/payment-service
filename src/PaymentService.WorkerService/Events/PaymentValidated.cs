@@ -12,11 +12,18 @@
 // SEMANTIC_TAG: [BLOCK_EVENT] Wolverine IEvent — validation completed
 namespace PaymentService.Workers.Events;
 
+/// <summary>
+/// Domain event published during saga execution in the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (domain event, immutable value object)</para>
+/// <para><strong>@purpose:</strong> Domain event published during saga execution in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Immutable domain event; all properties set at construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using PaymentService.Shared.Dtos;
 
-/// <summary>
-/// Wolverine event published after the ValidatePayment step handler completes.
-/// </summary>
 public sealed record PaymentValidated
 {
     /// <summary>Correlation ID of the payment being validated.</summary>

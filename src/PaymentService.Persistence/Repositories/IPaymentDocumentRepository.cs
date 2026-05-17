@@ -17,15 +17,13 @@ namespace PaymentService.Persistence.Repositories;
 /// Repository for PaymentDocument persistence operations.
 /// </summary>
 /// <remarks>
-/// <para><strong>@contract:</strong> M-PAYMENT-PERSIST</para>
+/// <para><strong>@contract:</strong> M-MONGO</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Data access interface for payment documents with MongoDB persistence</para>
-/// <para><strong>@module-type:</strong> DATA_LAYER</para>
-/// <para><strong>@depends:</strong> M-PAYMENT-SHARED</para>
-/// <para><strong>@domain-concept:</strong> IPaymentDocumentRepository</para>
 /// <para><strong>@invariant:</strong> CorrelationId is unique key across all payments</para>
 /// <para><strong>@invariant:</strong> All operations support transactional semantics via IClientSessionHandle</para>
-/// <para><strong>@stability:</strong> STABLE</para>
-/// <para><strong>@verification-ref:</strong> V-M-PERSIST-PAY</para>
+/// <para><strong>@verification-ref:</strong> V-M-MONGO</para>
 /// </remarks>
 public interface IPaymentDocumentRepository
 {

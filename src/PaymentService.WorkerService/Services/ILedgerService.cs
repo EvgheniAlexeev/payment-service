@@ -13,8 +13,14 @@
 namespace PaymentService.Workers.Services;
 
 /// <summary>
-/// Ledger service for fund reservation and settlement operations.
+/// Service abstraction contract for the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (service abstraction, dependency injection contract)</para>
+/// <para><strong>@purpose:</strong> Service abstraction contract for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All implementations must be thread-safe and respect cancellation tokens</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
 public interface ILedgerService
 {
     /// <summary>

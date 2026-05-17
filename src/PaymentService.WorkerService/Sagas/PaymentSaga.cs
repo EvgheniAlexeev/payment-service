@@ -16,6 +16,16 @@
 // SEMANTIC_TAG: [BLOCK_IDEMPOTENCY] Saga deduplicates via CorrelationId
 namespace PaymentService.Workers.Sagas;
 
+/// <summary>
+/// Saga orchestrator for distributed transaction processing in the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (saga orchestrator, manages distributed transaction lifecycle)</para>
+/// <para><strong>@purpose:</strong> Saga orchestrator for distributed transaction processing in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Saga state transitions are deterministic; idempotency ensures exactly-once processing</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using Microsoft.Extensions.Logging;
 using PaymentService.Shared.Commands;
 using PaymentService.Shared.Events;
@@ -24,10 +34,6 @@ using PaymentService.Workers.Events;
 using PaymentService.Workers.Metrics;
 using PaymentService.Workers.Services;
 
-/// <summary>
-/// Wolverine saga orchestrating payment processing through Validate → Reserve → Settle steps.
-/// Saga state persisted in MongoDB. Failed payments published to DLQ.
-/// </summary>
 public class PaymentSaga : Wolverine.Saga
 {
     private readonly ILogger<PaymentSaga> _logger;

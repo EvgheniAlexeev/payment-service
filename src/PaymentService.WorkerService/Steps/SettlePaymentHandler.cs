@@ -14,15 +14,22 @@
 // SEMANTIC_TAG: [BLOCK_SETTLE] Settling payment {correlationId}
 namespace PaymentService.Workers.Steps;
 
+/// <summary>
+/// Step handler processing Wolverine commands for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (step handler, processes Wolverine commands)</para>
+/// <para><strong>@purpose:</strong> Step handler processing Wolverine commands for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All operations logged with [BLOCK_*] markers for end-to-end traceability</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using Microsoft.Extensions.Logging;
 using PaymentService.Workers.Commands;
 using PaymentService.Workers.Events;
 using PaymentService.Workers.Metrics;
 using PaymentService.Workers.Services;
 
-/// <summary>
-/// Handles the SettlePayment step — finalizes payment via the ledger/settlement service.
-/// </summary>
 public class SettlePaymentHandler
 {
     private readonly ILedgerService _ledgerService;

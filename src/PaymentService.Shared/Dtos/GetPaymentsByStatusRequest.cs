@@ -9,14 +9,12 @@ namespace PaymentService.Shared.Dtos;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Query DTO for listing payments by status with pagination</para>
-/// <para><strong>@module-type:</strong> UTILITY (pure data contract)</para>
-/// <para><strong>@depends:</strong> IRequest interface</para>
-/// <para><strong>@domain-concept:</strong> GetPaymentsByStatusRequest (query command)</para>
 /// <para><strong>@invariant:</strong> Status must match valid payment states</para>
 /// <para><strong>@invariant:</strong> Page > 0 (1-based)</para>
 /// <para><strong>@invariant:</strong> PageSize > 0 and ≤ 1000</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>

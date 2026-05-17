@@ -13,14 +13,20 @@
 // SEMANTIC_TAG: [BLOCK_SERVICE_IMPL] Default IValidationService (HTTP)
 namespace PaymentService.Workers.Services.Implementations;
 
+/// <summary>
+/// Service implementation for the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (service implementation)</para>
+/// <para><strong>@purpose:</strong> Service implementation for the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> All operations logged with correlation IDs for traceability</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using PaymentService.Shared.Dtos;
 
-/// <summary>
-/// Default HTTP-based validation service implementation.
-/// Calls external validation service with Polly retry policy.
-/// </summary>
 public class DefaultValidationService : IValidationService
 {
     private readonly IHttpClientFactory _httpClientFactory;

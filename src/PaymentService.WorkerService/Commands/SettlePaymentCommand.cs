@@ -13,8 +13,15 @@
 namespace PaymentService.Workers.Commands;
 
 /// <summary>
-/// Command dispatched from PaymentSaga to the SettlePayment step handler.
+/// Wolverine command for saga step execution in the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (Wolverine command, immutable value object)</para>
+/// <para><strong>@purpose:</strong> Wolverine command for saga step execution in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Immutable Wolverine command; all properties set at construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 public sealed record SettlePaymentCommand
 {
     /// <summary>Correlation ID of the payment.</summary>

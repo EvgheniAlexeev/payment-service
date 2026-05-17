@@ -13,8 +13,15 @@
 namespace PaymentService.Workers.Events;
 
 /// <summary>
-/// Wolverine event published after the ReserveFunds step handler completes.
+/// Domain event published during saga execution in the M-WORKER module
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (domain event, immutable value object)</para>
+/// <para><strong>@purpose:</strong> Domain event published during saga execution in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Immutable domain event; all properties set at construction</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 public sealed record FundsReserved
 {
     /// <summary>Correlation ID of the payment.</summary>

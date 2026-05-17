@@ -13,12 +13,18 @@
 // SEMANTIC_TAG: [BLOCK_METRICS] Prometheus metrics collection
 namespace PaymentService.Workers.Metrics;
 
+/// <summary>
+/// Saga orchestrator for distributed transaction processing in the M-WORKER module
+/// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-WORKER (saga orchestrator, manages distributed transaction lifecycle)</para>
+/// <para><strong>@purpose:</strong> Saga orchestrator for distributed transaction processing in the M-WORKER module</para>
+/// <para><strong>@invariant:</strong> Saga state transitions are deterministic; idempotency ensures exactly-once processing</para>
+/// <para><strong>@verification-ref:</strong> V-M-WORKER</para>
+/// </remarks>
+
 using Prometheus;
 
-/// <summary>
-/// Prometheus metric definitions for PaymentSaga orchestration.
-/// All metrics are prefixed with "payment_saga_" for discoverability.
-/// </summary>
 public class PaymentSagaMetrics
 {
     // START_BLOCK_METRICS_INIT

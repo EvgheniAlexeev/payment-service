@@ -11,12 +11,11 @@ namespace PaymentService.Shared;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Generic result wrapper encapsulating success/failure state with optional data</para>
-/// <para><strong>@module-type:</strong> UTILITY (railway-oriented result type)</para>
-/// <para><strong>@domain-concept:</strong> Result&lt;T&gt; (railway-oriented programming)</para>
 /// <para><strong>@invariant:</strong> IsSuccess AND Error mutually exclusive</para>
 /// <para><strong>@invariant:</strong> Data populated only when IsSuccess=true</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>
@@ -49,10 +48,10 @@ public class Result<T>
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> Non-generic result for void operations</para>
-/// <para><strong>@module-type:</strong> UTILITY (railway-oriented result type)</para>
 /// <para><strong>@invariant:</strong> IsSuccess AND Error mutually exclusive</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// </summary>
 public class Result
 {

@@ -13,12 +13,10 @@ namespace PaymentService.Shared.Validators;
 
 /// <summary>
 /// <para><strong>@contract:</strong> M-SHARED</para>
+/// <para><strong>@version:</strong> 2.1.0</para>
+/// <para><strong>@since:</strong> 2.0.0</para>
 /// <para><strong>@purpose:</strong> FluentValidation rules for PaymentRequestDto input validation</para>
-/// <para><strong>@module-type:</strong> UTILITY (business rules engine)</para>
-/// <para><strong>@depends:</strong> FluentValidation, PaymentRequestDto</para>
-/// <para><strong>@domain-concept:</strong> PaymentRequestValidator (specification pattern)</para>
 /// <para><strong>@invariant:</strong> All rules executed in order, short-circuit on first failure</para>
-/// <para><strong>@stability:</strong> STABLE</para>
 /// <para><strong>@verification-ref:</strong> V-M-SHARED</para>
 /// </summary>
 /// <remarks>
