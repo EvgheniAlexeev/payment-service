@@ -8,7 +8,7 @@
 // START_MODULE M-WORKER
 // START_BLOCK_PROGRAM Program
 // PURPOSE: Worker host entry point for PaymentService.Workers.
-//          Configures Wolverine with RabbitMQ, Prometheus metrics,
+//          Configures Wolverine, Prometheus metrics,
 //          and structured logging.
 // SEMANTIC_TAG: [BLOCK_HOST] Wolverine worker host
 // Program.cs — WARNING: Needs Wolverine NuGet package and .NET 9 API alignment
@@ -34,7 +34,7 @@ builder.Configuration
 
 builder.Services.AddPaymentWorkers(builder.Configuration);
 
-// NOTE: Wolverine.UseWolverine(), Prometheus metrics, RabbitMQ, HealthChecks
+// NOTE: Wolverine.UseWolverine(), Prometheus metrics, HealthChecks
 // require package restoration with the correct NuGet feed.
 // See: https://github.com/EvgheniAlexeev/grace-tooling for setup.
 
