@@ -309,6 +309,26 @@ def main():
         files_scanned += 1
         relpath = os.path.relpath(filepath, root)
 
+        # Enforce: START_MODULE requires @contract
+        if "START_MODULE" in content and "contract" not in tags:
+            violations.append({
+                "severity": "warn",
+                "file": relpath,
+                "tag": "@contract",
+                "value": "(missing)",
+                "issue": "File has START_MODULE but no @contract annotation in Doxygen",
+            })
+
+        # Enforce: public class/record requires @purpose
+        if re.search(r'\bpublic\s+(class|record)\b', content) and "purpose" not in tags:
+            violations.append({
+                "severity": "warn",
+                "file": relpath,
+                "tag": "@purpose",
+                "value": "(missing)",
+                "issue": "File has public class/record but no @purpose annotation in Doxygen",
+            })
+
         for tag_name, tag_values in tags.items():
             for tag_value in tag_values:
                 tags_found += 1
