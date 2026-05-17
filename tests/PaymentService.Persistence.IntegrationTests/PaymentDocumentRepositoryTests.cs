@@ -239,10 +239,10 @@ public class PaymentDocumentRepositoryTests : IClassFixture<MongoDbFixture>
         var result = await _repository.GetByCorrelationIdAsync("corr-full");
         result.Should().NotBeNull();
         result!.SenderAccount().Should().Be("SRC-ACC-001");
-        result.Status.Should().Be("Pending");
-        result.Request.Amount.Should().Be(1234.56m);
-        result.Request.Currency.Should().Be("CHF");
-        result.Request.ValueDate.Should().Be(new DateTime(2026, 6, 1));
+        result!.Status.Should().Be("Pending");
+        result!.Request.Amount.Should().Be(1234.56m);
+        result!.Request.Currency.Should().Be("CHF");
+        result!.Request.ValueDate.Should().Be(new DateTime(2026, 6, 1));
     }
 }
 

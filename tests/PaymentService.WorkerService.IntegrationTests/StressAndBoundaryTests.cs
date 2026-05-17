@@ -445,14 +445,14 @@ public class StressAndBoundaryTests
     }
 
     [Fact]
-    public void FakeLedgerService_ReleaseTracking_Works()
+    public async Task FakeLedgerService_ReleaseTracking_Works()
     {
         var ledger = new FakeLedgerService();
         ledger.ReleasedReservations.Should().BeEmpty();
 
-        ledger.ReleaseReservationAsync("CID-1", "RSV-1").Wait();
-        ledger.ReleaseReservationAsync("CID-2", "RSV-2").Wait();
-        ledger.ReleaseReservationAsync("CID-3", "RSV-3").Wait();
+        await ledger.ReleaseReservationAsync("CID-1", "RSV-1");
+        await ledger.ReleaseReservationAsync("CID-2", "RSV-2");
+        await ledger.ReleaseReservationAsync("CID-3", "RSV-3");
 
         ledger.ReleasedReservations.Should().BeEquivalentTo(new[] { "RSV-1", "RSV-2", "RSV-3" });
     }

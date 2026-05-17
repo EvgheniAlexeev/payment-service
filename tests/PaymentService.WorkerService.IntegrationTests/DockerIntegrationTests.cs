@@ -62,6 +62,7 @@ public class DockerIntegrationTests
 
         // This test exercises the full flow using fakes that simulate
         // what real Docker services would do.
+        _ = Task.CompletedTask;
         var dlq = new CapturingDLQPublisher();
         var (_, _, _, sagaLogger, _, metrics) = TestFixtureFactory.CreateLoggersAndMetrics();
 
@@ -120,6 +121,7 @@ public class DockerIntegrationTests
         Skip.IfNot(IsDockerAvailable(), "Docker is not available on this machine.");
 
         // Test validation failure flow
+        _ = Task.CompletedTask;
         var dlq1 = new CapturingDLQPublisher();
         var (_, _, _, sagaLogger1, _, metrics1) = TestFixtureFactory.CreateLoggersAndMetrics();
         var saga1 = new PaymentService.Workers.Sagas.PaymentSaga(sagaLogger1, dlq1, metrics1);
@@ -180,6 +182,7 @@ public class DockerIntegrationTests
         Skip.IfNot(IsDockerAvailable(), "Docker is not available on this machine.");
 
         const int paymentCount = 50;
+        _ = Task.CompletedTask;
         var dlq = new CapturingDLQPublisher();
         var (_, _, _, sagaLogger, _, metrics) = TestFixtureFactory.CreateLoggersAndMetrics();
 
@@ -232,6 +235,7 @@ public class DockerIntegrationTests
         Skip.IfNot(IsDockerAvailable(), "Docker is not available on this machine.");
 
         // Simulate: first attempt fails at reserve, second attempt succeeds
+        _ = Task.CompletedTask;
         var dlq = new CapturingDLQPublisher();
         var (_, _, _, sagaLogger, _, metrics) = TestFixtureFactory.CreateLoggersAndMetrics();
 
