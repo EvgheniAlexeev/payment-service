@@ -11,6 +11,14 @@ namespace PaymentService.Api.ReaderService.Features.GetTransactions;
 /// Request model for GetTransactions feature.
 /// VSA feature: GetTransactions (ReaderService)
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> Request DTO for account transaction history query</para>
+/// <para><strong>@module-type:</strong> UTILITY (query DTO)</para>
+/// <para><strong>@invariant:</strong> AccountId non-empty, max 64 chars</para>
+/// <para><strong>@invariant:</strong> Skip ≥ 0, Limit between 1 and 100</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 public class GetTransactionsRequest
 {
     /// <summary>

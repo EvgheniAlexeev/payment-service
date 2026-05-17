@@ -5,14 +5,18 @@
 // SEMANTIC_TAG: [RESPONSE_DTO, OUTPUT_MODEL]
 // START_MODULE M_READER
 
-using PaymentService.Shared.Dtos;
-
 namespace PaymentService.Api.ReaderService.Features.GetTransactions;
 
 /// <summary>
 /// Response model for GetTransactions feature.
 /// VSA feature: GetTransactions (ReaderService)
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> Paged transaction list response for account statement query</para>
+/// <para><strong>@module-type:</strong> UTILITY (response DTO)</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 public class GetTransactionsResponse
 {
     /// <summary>
@@ -32,8 +36,16 @@ public class GetTransactionsResponse
 }
 
 /// <summary>
-/// Single transaction entry in the statement.
+/// Single transaction entry in the account statement.
+/// Contains direction (outgoing/incoming), counterparty, amount, and status.
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> Single payment entry in account transaction history</para>
+/// <para><strong>@module-type:</strong> UTILITY (response sub-DTO)</para>
+/// <para><strong>@invariant:</strong> Direction must be "outgoing" or "incoming"</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 public class TransactionItem
 {
     /// <summary>

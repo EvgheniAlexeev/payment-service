@@ -16,6 +16,14 @@ namespace PaymentService.Api.ReaderService.Features.GetTransactions;
 /// BLOCK_GET_TRANSACTIONS_HANDLER — Account transaction history handler.
 /// VSA feature: GetTransactions (ReaderService)
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> Query handler fetching paged payment history by account (sender or receiver)</para>
+/// <para><strong>@module-type:</strong> CORE_LOGIC (query handler)</para>
+/// <para><strong>@invariant:</strong> Payments sorted by CreatedAt descending</para>
+/// <para><strong>@invariant:</strong> accountId matches SenderAccount OR ReceiverAccount (not both)</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 public class GetTransactionsHandler
 {
     private readonly IPaymentDocumentRepository _repository;
@@ -29,6 +37,26 @@ public class GetTransactionsHandler
         _logger = logger;
     }
 
+    /// <summary>
+    /// Handle account transaction history query.
+    /// Queries MongoDB for payments where accountId is sender or receiver.
+    /// Maps results to TransactionItem list with direction metadata.
+    /// </summary>
+    /// <remarks>
+    /// <para><strong>@contract-action:</strong> HandleAsync</para>
+    /// <para><strong>@param request:</strong> GetTransactionsRequest with accountId, skip, limit</para>
+    /// <para><strong>@return:</strong> Result with GetTransactionsResponse or error</para>
+    /// <para><strong>@throws:</strong> TimeoutException — MongoDB query exceeded timeout</para>
+    /// <para><strong>@log-event:</strong> reader.handler.get-transactions-start {accountId} {skip} {limit}</para>
+    /// <para><strong>@log-event:</strong> reader.handler.get-transactions-success {accountId} {count} {total}</para>
+    /// <para><strong>@log-event:</strong> reader.handler.get-transactions-error {accountId}</para>
+    /// <para><strong>@trace-span:</strong> reader.handler.get-transactions</para>
+    /// <para><strong>@pre-condition:</strong> request.AccountId non-empty</para>
+    /// <para><strong>@post-condition:</strong> response.Transactions != null</para>
+    /// <para><strong>@complexity:</strong> O(log n + k) + O(k) mapping</para>
+    /// <para><strong>@idempotent:</strong> YES</para>
+    /// <para><strong>@pure:</strong> NO (I/O: database read)</para>
+    /// </remarks>
     public async Task<Result<GetTransactionsResponse>> HandleAsync(
         GetTransactionsRequest request, CancellationToken ct)
     {

@@ -14,6 +14,14 @@ namespace PaymentService.Api.ReaderService.Features.GetTransactions;
 /// BLOCK_GET_TRANSACTIONS_ENDPOINT — Get transaction history for an account.
 /// VSA feature: GetTransactions (ReaderService)
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> HTTP endpoint returning paged transaction history for a given account</para>
+/// <para><strong>@module-type:</strong> ENTRY_POINT (API endpoint)</para>
+/// <para><strong>@invariant:</strong> accountId must be non-empty, max 64 chars</para>
+/// <para><strong>@invariant:</strong> skip ≥ 0, limit between 1 and 100</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 [ApiController]
 [Route("api/accounts")]
 public class GetTransactionsEndpoint : ControllerBase
@@ -36,6 +44,24 @@ public class GetTransactionsEndpoint : ControllerBase
     /// Get transaction history for an account.
     /// Returns payments where the account appears as sender or receiver.
     /// </summary>
+    /// <remarks>
+    /// <para><strong>@contract-action:</strong> GetTransactions</para>
+    /// <para><strong>@param accountId:</strong> Account to query history for</para>
+    /// <para><strong>@param skip:</strong> Pagination offset (0-based)</para>
+    /// <para><strong>@param limit:</strong> Max results (1-100, default 20)</para>
+    /// <para><strong>@return:</strong> 200 OK + GetTransactionsResponse or 400 on validation error</para>
+    /// <para><strong>@throws:</strong> ValidationException — invalid accountId/skip/limit</para>
+    /// <para><strong>@log-event:</strong> reader.get-transactions-start {accountId} {skip} {limit}</para>
+    /// <para><strong>@log-event:</strong> reader.get-transactions-success {accountId} {count}</para>
+    /// <para><strong>@log-event:</strong> reader.get-transactions-validation-error {accountId} {errors}</para>
+    /// <para><strong>@log-event:</strong> reader.get-transactions-error {accountId} {error}</para>
+    /// <para><strong>@trace-span:</strong> reader.get-transactions</para>
+    /// <para><strong>@pre-condition:</strong> accountId non-empty && skip ≥ 0 && 1 ≤ limit ≤ 100</para>
+    /// <para><strong>@post-condition:</strong> result != null (empty array if no transactions)</para>
+    /// <para><strong>@complexity:</strong> O(log n + k) where k = result set size</para>
+    /// <para><strong>@idempotent:</strong> YES</para>
+    /// <para><strong>@pure:</strong> NO (I/O: database read)</para>
+    /// </remarks>
     [HttpGet("{accountId}/transactions")]
     [ProducesResponseType(typeof(GetTransactionsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]

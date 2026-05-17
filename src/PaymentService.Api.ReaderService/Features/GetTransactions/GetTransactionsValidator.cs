@@ -13,6 +13,14 @@ namespace PaymentService.Api.ReaderService.Features.GetTransactions;
 /// Validator for GetTransactions feature requests.
 /// VSA feature: GetTransactions (ReaderService)
 /// </summary>
+/// <remarks>
+/// <para><strong>@contract:</strong> M-READER</para>
+/// <para><strong>@purpose:</strong> Validates account transaction query input parameters</para>
+/// <para><strong>@module-type:</strong> UTILITY (validator)</para>
+/// <para><strong>@invariant:</strong> AccountId 1-64 characters, non-empty</para>
+/// <para><strong>@invariant:</strong> Skip ≥ 0, Limit 1-100</para>
+/// <para><strong>@verification-ref:</strong> V-M-READER</para>
+/// </remarks>
 public class GetTransactionsValidator : AbstractValidator<GetTransactionsRequest>
 {
     private const int MaxLimit = 100;
